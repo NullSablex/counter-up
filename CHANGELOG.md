@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning.
 
+## [0.1.2] - 2026-02-16
+
+### Changed
+
+- Package name migrated to scoped npm package: `@nullsablex/counter-up`.
+- README updated for scoped installation/import and npm badges.
+- Release workflow updated with npm scope configuration for `@nullsablex`.
+
 ## [0.1.1] - 2026-02-16
 
 ### Added

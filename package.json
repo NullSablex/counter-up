@@ -1,6 +1,6 @@
 {
-  "name": "counter-up",
-  "version": "0.1.1",
+  "name": "@nullsablex/counter-up",
+  "version": "0.1.2",
   "description": "Biblioteca JS pura para animação de contadores numéricos",
   "author": "NullSablex",
   "repository": {
