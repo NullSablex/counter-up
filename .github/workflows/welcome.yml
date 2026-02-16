@@ -1,0 +1,27 @@
+name: Welcome
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: First interaction welcome message
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            Obrigado por abrir sua primeira issue no projeto.
+            Sua contribuição é muito bem-vinda e vamos analisar em breve.
+          pr-message: |
+            Obrigado pelo seu primeiro Pull Request.
+            É ótimo ter sua contribuição aqui no projeto.

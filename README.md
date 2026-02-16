@@ -1,5 +1,17 @@
 # Counter Up
 
+<p align="left">
+  <a href="https://www.npmjs.com/package/counter-up"><img alt="npm version" src="https://img.shields.io/npm/v/counter-up?color=blue"></a>
+  <a href="https://www.npmjs.com/package/counter-up"><img alt="npm downloads" src="https://img.shields.io/npm/dm/counter-up?color=blue"></a>
+  <a href="https://github.com/NullSablex/counter-up/releases"><img alt="release" src="https://img.shields.io/github/v/release/NullSablex/counter-up?color=blue"></a>
+  <a href="./LICENSE"><img alt="license" src="https://img.shields.io/github/license/NullSablex/counter-up?color=brightgreen"></a>
+  <a href="https://github.com/NullSablex/counter-up/graphs/contributors"><img alt="contributors" src="https://img.shields.io/github/contributors/NullSablex/counter-up?color=brightgreen"></a>
+  <a href="./CONTRIBUTING.md"><img alt="contributions welcome" src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg"></a>
+  <a href="https://github.com/NullSablex/counter-up/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/NullSablex/counter-up/ci.yml?branch=main&label=CI"></a>
+  <a href="https://github.com/NullSablex/counter-up/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://img.shields.io/github/actions/workflow/status/NullSablex/counter-up/codeql.yml?branch=main&label=CodeQL"></a>
+  <a href="https://github.com/NullSablex/counter-up/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/NullSablex/counter-up?style=social"></a>
+</p>
+
 Biblioteca JavaScript para animação de números no DOM, sem dependências externas.
 
 ## Recursos
@@ -14,6 +26,9 @@ Biblioteca JavaScript para animação de números no DOM, sem dependências exte
 ```bash
 npm install counter-up
 ```
+
+O pacote já inclui os arquivos prontos de `dist/` (ESM, UMD e minificados).  
+Para usar a biblioteca, não é necessário rodar build.
 
 ## Uso
 
@@ -90,7 +105,7 @@ Métodos: `start()`, `pause()`, `resume()`, `stop()`, `reset()`, `set(value|arra
 
 Getters: `values`, `running`, `paused`, `count`
 
-## Build
+## Build (somente para desenvolvimento da biblioteca)
 
 ```bash
 npm run build
@@ -102,6 +117,16 @@ Arquivos gerados em `dist/`:
 - `counterup.esm.min.js`
 - `counterup.umd.js`
 - `counterup.umd.min.js`
+
+## CI/CD
+
+Workflows configurados em `.github/workflows/`:
+
+- `ci.yml`: validação em push/PR (`npm ci`, `npm run build`, `npm pack --dry-run`)
+- `dependency-review.yml`: revisão de dependências em PR
+- `codeql.yml`: análise estática de segurança (CodeQL)
+- `release.yml`: publicação automática no npm via tag `v*.*.*`
+- `welcome.yml`: mensagem automática de boas-vindas para primeira issue/PR
 
 ## Projeto
 
@@ -115,6 +140,10 @@ MIT. Consulte `LICENSE`.
 ## Contribuição
 
 Veja `CONTRIBUTING.md`.
+
+## Código de Conduta
+
+Veja `CODE_OF_CONDUCT.md`.
 
 ## Histórico de versões
 

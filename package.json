@@ -16,6 +16,10 @@
   "browser": "./dist/counterup.umd.min.js",
   "unpkg": "./dist/counterup.umd.min.js",
   "jsdelivr": "./dist/counterup.umd.min.js",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "module": "./dist/counterup.esm.js",
   "exports": {
     ".": {
@@ -28,6 +32,7 @@
     "src",
     "README.md",
     "LICENSE",
+    "CODE_OF_CONDUCT.md",
     "CHANGELOG.md",
     "CONTRIBUTING.md"
   ],
