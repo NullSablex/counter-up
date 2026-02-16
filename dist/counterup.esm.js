@@ -1,4 +1,4 @@
-/* counter-up v0.1.0 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
+/* counter-up v0.1.1 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
 const easings = {
   linear: (t) => t,
   easeInOutQuad: (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),

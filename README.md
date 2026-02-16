@@ -9,6 +9,7 @@
   <a href="./CONTRIBUTING.md"><img alt="contributions welcome" src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg"></a>
   <a href="https://github.com/NullSablex/counter-up/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/NullSablex/counter-up/ci.yml?branch=main&label=CI"></a>
   <a href="https://github.com/NullSablex/counter-up/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://img.shields.io/github/actions/workflow/status/NullSablex/counter-up/codeql.yml?branch=main&label=CodeQL"></a>
+  <a href="https://nullsablex.github.io/counter-up/demo/"><img alt="demo" src="https://img.shields.io/badge/demo-live-orange"></a>
   <a href="https://github.com/NullSablex/counter-up/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/NullSablex/counter-up?style=social"></a>
 </p>
 
@@ -29,6 +30,11 @@ npm install counter-up
 
 O pacote já inclui os arquivos prontos de `dist/` (ESM, UMD e minificados).  
 Para usar a biblioteca, não é necessário rodar build.
+
+## Demo
+
+Acesse a demonstração online no GitHub Pages:  
+`https://nullsablex.github.io/counter-up/demo/`
 
 ## Uso
 
