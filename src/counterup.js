@@ -176,6 +176,12 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
   }
 
   function start() {
+    if (state.isPaused) {
+      return resume();
+    }
+    if (state.isRunning) {
+      return api;
+    }
     return play(options.start, options.end);
   }
 
@@ -184,6 +190,8 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     cancelFrame();
     state.isRunning = false;
     state.isPaused = true;
+    // Keep elapsed progress, but force startTime recalculation on resume.
+    state.startTime = null;
     return api;
   }
 
@@ -191,6 +199,8 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     if (!state.isPaused || state.destroyed) return api;
     state.isRunning = true;
     state.isPaused = false;
+    // Re-anchor startTime using the saved elapsed time.
+    state.startTime = null;
     state.rafId = requestAnimationFrame(animate);
     return api;
   }

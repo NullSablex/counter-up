@@ -1,4 +1,4 @@
-/* @nullsablex/counter-up v0.1.3 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
+/* @nullsablex/counter-up v0.1.4 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
 (function (global, factory) {
   if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
@@ -185,6 +185,12 @@
     }
 
     function start() {
+      if (state.isPaused) {
+        return resume();
+      }
+      if (state.isRunning) {
+        return api;
+      }
       return play(options.start, options.end);
     }
 
@@ -193,6 +199,8 @@
       cancelFrame();
       state.isRunning = false;
       state.isPaused = true;
+      // Keep elapsed progress, but force startTime recalculation on resume.
+      state.startTime = null;
       return api;
     }
 
@@ -200,6 +208,8 @@
       if (!state.isPaused || state.destroyed) return api;
       state.isRunning = true;
       state.isPaused = false;
+      // Re-anchor startTime using the saved elapsed time.
+      state.startTime = null;
       state.rafId = requestAnimationFrame(animate);
       return api;
     }

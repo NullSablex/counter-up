@@ -1,4 +1,4 @@
-/* @nullsablex/counter-up v0.1.3 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
+/* @nullsablex/counter-up v0.1.4 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
 const easings = {
   linear: (t) => t,
   easeInOutQuad: (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
@@ -177,6 +177,12 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
   }
 
   function start() {
+    if (state.isPaused) {
+      return resume();
+    }
+    if (state.isRunning) {
+      return api;
+    }
     return play(options.start, options.end);
   }
 
@@ -185,6 +191,8 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     cancelFrame();
     state.isRunning = false;
     state.isPaused = true;
+    // Keep elapsed progress, but force startTime recalculation on resume.
+    state.startTime = null;
     return api;
   }
 
@@ -192,6 +200,8 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     if (!state.isPaused || state.destroyed) return api;
     state.isRunning = true;
     state.isPaused = false;
+    // Re-anchor startTime using the saved elapsed time.
+    state.startTime = null;
     state.rafId = requestAnimationFrame(animate);
     return api;
   }
