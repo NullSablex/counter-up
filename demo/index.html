@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Counter Up Demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(120deg, #f2f7ff, #e6ffef);
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        width: min(90vw, 420px);
+      }
+
+      .metric {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+        font-weight: 700;
+        color: #0d2c54;
+        margin: 8px 0;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        background: #174ea6;
+        color: #fff;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Counter Up</h1>
+      <div class="metric"></div>
+      <div class="metric"></div>
+      <div class="metric"></div>
+      <button id="replay">Reiniciar</button>
+      <button id="pause">Pausar/Continuar</button>
+    </div>
+
+    <script src="../dist/counterup.umd.min.js"></script>
+    <script>
+      let instance = null;
+
+      function runCounter() {
+        instance = CounterUp.counterUp(".metric", {
+          start: 0,
+          end: 12890.55,
+          duration: 2200,
+          decimals: 2,
+          prefix: "R$ ",
+          easing: "easeOutCubic",
+        });
+      }
+
+      runCounter();
+
+      document.getElementById("replay").addEventListener("click", function () {
+        if (instance) instance.destroy();
+        runCounter();
+      });
+
+      document.getElementById("pause").addEventListener("click", function () {
+        if (!instance) return;
+        if (instance.paused) {
+          instance.resume();
+          return;
+        }
+        if (instance.running) {
+          instance.pause();
+        }
+      });
+    </script>
+  </body>
+</html>
