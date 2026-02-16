@@ -1,8 +1,8 @@
 # Counter Up
 
 <p align="left">
-  <a href="https://www.npmjs.com/package/counter-up"><img alt="npm version" src="https://img.shields.io/npm/v/counter-up?color=blue"></a>
-  <a href="https://www.npmjs.com/package/counter-up"><img alt="npm downloads" src="https://img.shields.io/npm/dm/counter-up?color=blue"></a>
+  <a href="https://www.npmjs.com/package/@nullsablex/counter-up"><img alt="npm version" src="https://img.shields.io/npm/v/%40nullsablex%2Fcounter-up?color=blue"></a>
+  <a href="https://www.npmjs.com/package/@nullsablex/counter-up"><img alt="npm downloads" src="https://img.shields.io/npm/dm/%40nullsablex%2Fcounter-up?color=blue"></a>
   <a href="https://github.com/NullSablex/counter-up/releases"><img alt="release" src="https://img.shields.io/github/v/release/NullSablex/counter-up?color=blue"></a>
   <a href="./LICENSE"><img alt="license" src="https://img.shields.io/github/license/NullSablex/counter-up?color=brightgreen"></a>
   <a href="https://github.com/NullSablex/counter-up/graphs/contributors"><img alt="contributors" src="https://img.shields.io/github/contributors/NullSablex/counter-up?color=brightgreen"></a>
@@ -25,7 +25,7 @@ Biblioteca JavaScript para animação de números no DOM, sem dependências exte
 ## Instalação
 
 ```bash
-npm install counter-up
+npm install @nullsablex/counter-up
 ```
 
 O pacote já inclui os arquivos prontos de `dist/` (ESM, UMD e minificados).  
@@ -41,7 +41,7 @@ Acesse a demonstração online no GitHub Pages:
 ### ESM (elemento único)
 
 ```js
-import { counterUp } from "counter-up";
+import { counterUp } from "@nullsablex/counter-up";
 
 counterUp("#total", {
   start: 0,
@@ -55,7 +55,7 @@ counterUp("#total", {
 ### ESM (múltiplos elementos por classe)
 
 ```js
-import { counterUp } from "counter-up";
+import { counterUp } from "@nullsablex/counter-up";
 
 const counters = counterUp(".metric", {
   start: 0,

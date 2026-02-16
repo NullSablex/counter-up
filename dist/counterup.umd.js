@@ -1,4 +1,4 @@
-/* counter-up v0.1.1 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
+/* @nullsablex/counter-up v0.1.2 | Author: NullSablex | https://github.com/NullSablex/counter-up.git | MIT License */
 (function (global, factory) {
   if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
