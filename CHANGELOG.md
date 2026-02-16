@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning.
 
+## [0.1.6] - 2026-02-16
+
+### Added
+
+- Added viewport-based start with `startOnView` using `IntersectionObserver`.
+- Added observer options: `once`, `root`, `rootMargin`, and `threshold`.
+
 ## [0.1.4] - 2026-02-16
 
 ### Fixed
