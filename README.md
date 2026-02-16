@@ -101,7 +101,7 @@ counters.update([100, 250, 999]);
 
 ### Instância (1 elemento)
 
-Métodos: `start()`, `pause()`, `resume()`, `stop()`, `reset()`, `set(value)`, `update(nextEnd, nextOptions?)`, `destroy()`
+Métodos: `start()` (inicia ou retoma se pausado), `pause()`, `resume()`, `stop()`, `reset()`, `set(value)`, `update(nextEnd, nextOptions?)`, `destroy()`
 
 Getters: `value`, `running`, `paused`
 

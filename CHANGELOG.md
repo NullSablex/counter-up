@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 This project follows Semantic Versioning.
 
+## [0.1.4] - 2026-02-16
+
+### Fixed
+
+- Fixed paused animation behavior when calling `start()` again. It now resumes from the paused point instead of jumping directly to the final value.
+
 ## [0.1.2] - 2026-02-16
 
 ### Changed
