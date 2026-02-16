@@ -66,6 +66,19 @@ const counters = counterUp(".metric", {
 counters.update([100, 250, 999]);
 ```
 
+### ESM (iniciar ao entrar na tela)
+
+```js
+import { counterUp } from "@nullsablex/counter-up";
+
+counterUp(".metric", {
+  end: 1500,
+  startOnView: true,
+  once: true,
+  threshold: 0.2,
+});
+```
+
 ### Navegador (UMD)
 
 ```html
@@ -94,6 +107,11 @@ counters.update([100, 250, 999]);
 - `easing` (`"linear"` | `"easeInOutQuad"` | `"easeOutCubic"` | function)
 - `formatter` (function)
 - `autostart` (boolean, padrão `true`)
+- `startOnView` (boolean, padrão `false`): inicia quando o elemento entra na viewport
+- `once` (boolean, padrão `true`): com `startOnView`, anima apenas uma vez
+- `root` (Element|null, padrão `null`): root do `IntersectionObserver`
+- `rootMargin` (string, padrão `"0px"`): margem do `IntersectionObserver`
+- `threshold` (number|number[], padrão `0.1`): threshold do `IntersectionObserver`
 - `onUpdate` (function)
 - `onComplete` (function)
 

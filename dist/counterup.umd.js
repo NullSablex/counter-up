@@ -1,4 +1,4 @@
-/* @nullsablex/counter-up v0.1.5 | Author: NullSablex | git+https://github.com/NullSablex/counter-up.git | MIT License */
+/* @nullsablex/counter-up v0.1.7 | Author: NullSablex | git+https://github.com/NullSablex/counter-up.git | MIT License */
 (function (global, factory) {
   if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
@@ -25,6 +25,11 @@
     easing: "easeOutCubic",
     formatter: null,
     autostart: true,
+    startOnView: false,
+    once: true,
+    root: null,
+    rootMargin: "0px",
+    threshold: 0.1,
     onUpdate: null,
     onComplete: null,
   };
@@ -115,6 +120,8 @@
       isRunning: false,
       isPaused: false,
       destroyed: false,
+      hasPlayed: false,
+      observer: null,
     };
 
     function render(value, notify = true) {
@@ -129,6 +136,13 @@
       if (state.rafId !== null) {
         cancelAnimationFrame(state.rafId);
         state.rafId = null;
+      }
+    }
+
+    function disconnectObserver() {
+      if (state.observer) {
+        state.observer.disconnect();
+        state.observer = null;
       }
     }
 
@@ -171,6 +185,7 @@
       state.startTime = null;
       state.isPaused = false;
       state.isRunning = true;
+      state.hasPlayed = true;
       state.rafId = requestAnimationFrame(animate);
       return api;
     }
@@ -185,6 +200,10 @@
     }
 
     function start() {
+      if (state.destroyed) return api;
+      if (options.startOnView && options.once) {
+        disconnectObserver();
+      }
       if (state.isPaused) {
         return resume();
       }
@@ -231,6 +250,7 @@
 
     function update(nextEnd, nextOptions = {}) {
       if (state.destroyed) return api;
+      disconnectObserver();
       options = normalizeOptions({
         ...options,
         ...nextOptions,
@@ -245,7 +265,50 @@
 
     function destroy() {
       stop();
+      disconnectObserver();
       state.destroyed = true;
+    }
+
+    function setupObserver() {
+      if (
+        !options.startOnView ||
+        !options.autostart ||
+        typeof IntersectionObserver === "undefined"
+      ) {
+        return;
+      }
+
+      disconnectObserver();
+      state.observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry) return;
+
+          if (entry.isIntersecting) {
+            if (options.once && state.hasPlayed) {
+              return;
+            }
+            render(options.start, false);
+            play(options.start, options.end);
+            if (options.once) {
+              disconnectObserver();
+            }
+            return;
+          }
+
+          if (!options.once) {
+            stop();
+            render(options.start, false);
+          }
+        },
+        {
+          root: options.root,
+          rootMargin: options.rootMargin,
+          threshold: options.threshold,
+        }
+      );
+
+      state.observer.observe(element);
     }
 
     const api = {
@@ -269,7 +332,9 @@
     };
 
     render(options.start, false);
-    if (options.autostart) {
+    if (options.startOnView) {
+      setupObserver();
+    } else if (options.autostart) {
       start();
     }
 
