@@ -24,12 +24,12 @@ function toUmdSource(esmSource) {
   if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = factory();
   } else {
-    global.CounterUp = factory();
+    global.counterUp = factory();
   }
-})(typeof window !== "undefined" ? window : this, function () {
+})(typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : this, function () {
   "use strict";
 ${indent(body, 2)}
-  return { counterUp: counterUp, default: counterUp };
+  return counterUp;
 });
 `;
 }

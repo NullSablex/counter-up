@@ -3,86 +3,1659 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Counter Up Demo</title>
+    <title>Counter Up — Demo</title>
     <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #f0f4ff;
+        --surface: #ffffff;
+        --surface2: #f8faff;
+        --border: #e2e8f0;
+        --text: #1a2744;
+        --text-muted: #64748b;
+        --accent: #2563eb;
+        --accent-light: #dbeafe;
+        --code-bg: #0f172a;
+        --code-text: #e2e8f0;
+        --radius: 12px;
+        --shadow: 0 4px 24px rgba(0,0,0,0.07);
+      }
+
       body {
-        margin: 0;
-        font-family: sans-serif;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: linear-gradient(120deg, #f2f7ff, #e6ffef);
+        font-family: system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
       }
 
-      .card {
-        background: #fff;
-        border-radius: 14px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      /* ── HEADER ─────────────────────────────────────── */
+      header {
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        color: white;
+        padding: 48px 24px 40px;
         text-align: center;
-        width: min(90vw, 420px);
+      }
+      header h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; }
+      header p  { opacity: 0.85; margin-top: 8px; font-size: 1.05rem; }
+      .badges { margin-top: 18px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+      .badge {
+        background: rgba(255,255,255,0.15);
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: 0.78rem;
+        font-weight: 600;
       }
 
-      .metric {
-        font-size: clamp(2rem, 8vw, 3.5rem);
+      /* ── NAV ────────────────────────────────────────── */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 16px;
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      }
+      nav::-webkit-scrollbar { display: none; }
+      nav a {
+        padding: 13px 14px;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 500;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+      /* ── MAIN ───────────────────────────────────────── */
+      main {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 44px 20px 80px;
+      }
+
+      /* ── SECTION ────────────────────────────────────── */
+      section {
+        margin-bottom: 52px;
+        scroll-margin-top: 58px;
+      }
+      section > h2 {
+        font-size: 1.3rem;
         font-weight: 700;
-        color: #0d2c54;
-        margin: 8px 0;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .tag {
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: 2px 9px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      section > .desc {
+        color: var(--text-muted);
+        margin-bottom: 18px;
+        font-size: 0.9rem;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      section > .desc code {
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-family: monospace;
       }
 
-      button {
-        border: 0;
-        border-radius: 10px;
-        padding: 10px 16px;
-        font-size: 0.95rem;
-        background: #174ea6;
-        color: #fff;
-        cursor: pointer;
+      /* ── EXAMPLE CARD ───────────────────────────────── */
+      .example {
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 14px;
+        border: 1px solid var(--border);
       }
+      .example-title {
+        padding: 11px 18px;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .example-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      @media (max-width: 600px) {
+        .example-body { grid-template-columns: 1fr; }
+      }
+      .example-demo {
+        padding: 28px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-right: 1px solid var(--border);
+        min-height: 130px;
+      }
+      .example-code {
+        background: var(--code-bg);
+        padding: 20px;
+        overflow-x: auto;
+      }
+      pre {
+        font-family: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.77rem;
+        line-height: 1.75;
+        color: var(--code-text);
+        white-space: pre;
+      }
+
+      /* ── COUNTER DISPLAY ────────────────────────────── */
+      .num {
+        font-size: clamp(1.7rem, 4vw, 2.6rem);
+        font-weight: 800;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .label {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+      }
+      .demo-row {
+        display: flex;
+        gap: 28px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .demo-item { text-align: center; }
+
+      /* ── BUTTONS ────────────────────────────────────── */
+      .controls {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      button {
+        border: none;
+        border-radius: 8px;
+        padding: 7px 13px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+      button:hover { opacity: 0.82; }
+      .btn-blue   { background: var(--accent); color: white; }
+      .btn-gray   { background: var(--border); color: var(--text); }
+      .btn-green  { background: #dcfce7; color: #15803d; }
+      .btn-yellow { background: #fef3c7; color: #b45309; }
+      .btn-red    { background: #fee2e2; color: #dc2626; }
+
+      /* ── STATUS BADGE ───────────────────────────────── */
+      .status {
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .s-running { background: #dcfce7; color: #15803d; }
+      .s-paused  { background: #fef3c7; color: #b45309; }
+      .s-stopped { background: #fee2e2; color: #dc2626; }
+      .s-waiting { background: #e0e7ff; color: #4338ca; }
+      .s-done    { background: #f1f5f9; color: #64748b; }
+
+      /* ── LOG OUTPUT ─────────────────────────────────── */
+      .log {
+        background: var(--code-bg);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-family: monospace;
+        font-size: 0.73rem;
+        color: #86efac;
+        max-height: 90px;
+        overflow-y: auto;
+        width: 100%;
+        text-align: left;
+      }
+      .log div { opacity: 0.6; }
+      .log div:last-child { opacity: 1; }
+
+      /* ── PROGRESS BAR ───────────────────────────────── */
+      .pbar-wrap {
+        width: 100%;
+        max-width: 280px;
+        background: var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+        height: 10px;
+      }
+      .pbar-fill {
+        height: 100%;
+        border-radius: 20px;
+        width: 0%;
+        background: var(--accent);
+        transition: width 0.05s linear;
+      }
+      .pbar-row { width: 100%; max-width: 280px; }
+      .pbar-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+
+      /* ── FOOTER ─────────────────────────────────────── */
+      footer {
+        text-align: center;
+        padding: 32px 24px;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        border-top: 1px solid var(--border);
+      }
+      footer a { color: var(--accent); text-decoration: none; }
     </style>
   </head>
   <body>
-    <div class="card">
+
+    <header>
       <h1>Counter Up</h1>
-      <div class="metric"></div>
-      <div class="metric"></div>
-      <div class="metric"></div>
-      <button id="replay">Reiniciar</button>
-      <button id="pause">Pausar/Continuar</button>
-    </div>
+      <p>Biblioteca JavaScript pura para animação de contadores numéricos</p>
+      <div class="badges">
+        <span class="badge">Zero dependências</span>
+        <span class="badge">ESM + UMD</span>
+        <span class="badge">Headless / SSR</span>
+        <span class="badge">IntersectionObserver</span>
+        <span class="badge">Node.js</span>
+      </div>
+    </header>
+
+    <nav>
+      <a href="#basico">Básico</a>
+      <a href="#formatacao">Formatação</a>
+      <a href="#locale">Locale</a>
+      <a href="#easing">Easing</a>
+      <a href="#formatter">Formatter</a>
+      <a href="#stagger">Sleep / Stagger</a>
+      <a href="#viewport">Viewport</a>
+      <a href="#multiplos">Múltiplos</a>
+      <a href="#controles">Controles</a>
+      <a href="#callbacks">Callbacks</a>
+      <a href="#update">Update</a>
+      <a href="#autodetect">Auto-detecção</a>
+      <a href="#countdown">Regressiva</a>
+      <a href="#headless">Headless</a>
+    </nav>
+
+    <main>
+
+      <!-- ═══════════════════════ BÁSICO ═══════════════════════ -->
+      <section id="basico">
+        <h2>Básico <span class="tag">padrão</span></h2>
+        <p class="desc">Uso mínimo: passe o seletor e o valor final. Todos os outros parâmetros são opcionais.</p>
+
+        <div class="example">
+          <div class="example-title">Contador simples</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Usuários ativos</div>
+              <div class="num" id="b1">0</div>
+            </div>
+            <div class="example-code"><pre>counterUp("#b1", {
+  end: 48230,
+  duration: 2000,
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Comparação de duração — rápido / padrão / lento</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">800ms</div>
+                  <div class="num" id="b-fast">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">2000ms</div>
+                  <div class="num" id="b-mid">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">4500ms</div>
+                  <div class="num" id="b-slow">0</div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="b-speed-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#b-fast", {
+  end: 1000,
+  duration: 800,   // rápido
+});
+
+counterUp("#b-mid", {
+  end: 1000,
+  duration: 2000,  // padrão
+});
+
+counterUp("#b-slow", {
+  end: 1000,
+  duration: 4500,  // lento
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Duração zero — pula direto para o valor final</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="num" id="b-zero">0</div>
+              <div class="controls">
+                <button class="btn-blue" id="b-zero-go">Executar</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>const c = counterUp("#b-zero", {
+  end: 99999,
+  duration: 0,     // sem animação
+  autostart: false,
+});
+
+btn.onclick = () => c.start();</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ FORMATAÇÃO ════════════════════ -->
+      <section id="formatacao">
+        <h2>Formatação <span class="tag">prefix / suffix / decimals</span></h2>
+        <p class="desc">Use <code>prefix</code>, <code>suffix</code> e <code>decimals</code> para qualquer formato sem precisar de um <code>formatter</code> personalizado.</p>
+
+        <div class="example">
+          <div class="example-title">Moeda — R$ com 2 decimais</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Receita total</div>
+              <div class="num" id="f-currency">R$ 0,00</div>
+            </div>
+            <div class="example-code"><pre>counterUp("#f-currency", {
+  start: 0,
+  end: 128750.90,
+  duration: 2200,
+  decimals: 2,
+  prefix: "R$ ",
+  locale: "pt-BR",
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Porcentagem</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Satisfação</div>
+                  <div class="num" id="f-pct1">0%</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Uptime</div>
+                  <div class="num" id="f-pct2">0%</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#f-pct1", {
+  end: 97,
+  suffix: "%",
+  duration: 1600,
+  useGrouping: false,
+});
+
+counterUp("#f-pct2", {
+  end: 99.98,
+  suffix: "%",
+  decimals: 2,
+  duration: 1800,
+  useGrouping: false,
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Outros formatos — pontos, temperatura, distância</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Pontos</div>
+                  <div class="num" id="f-pts">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Temperatura</div>
+                  <div class="num" id="f-temp">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Distância</div>
+                  <div class="num" id="f-km">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#f-pts", {
+  end: 8450,
+  suffix: " pts",
+  duration: 1800,
+});
+
+counterUp("#f-temp", {
+  end: 36.6,
+  suffix: " °C",
+  decimals: 1,
+  duration: 1500,
+  useGrouping: false,
+});
+
+counterUp("#f-km", {
+  end: 42.195,
+  suffix: " km",
+  decimals: 3,
+  duration: 2000,
+  useGrouping: false,
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Separador de milhar — <code>useGrouping</code></div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Com agrupamento</div>
+                  <div class="num" id="f-grp1">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Sem agrupamento</div>
+                  <div class="num" id="f-grp2">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#f-grp1", {
+  end: 1234567,
+  useGrouping: true,  // → 1.234.567
+  duration: 2000,
+});
+
+counterUp("#f-grp2", {
+  end: 1234567,
+  useGrouping: false, // → 1234567
+  duration: 2000,
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════ LOCALE ══════════════════════ -->
+      <section id="locale">
+        <h2>Locale <span class="tag">Intl.NumberFormat</span></h2>
+        <p class="desc">A opção <code>locale</code> controla os separadores decimal e de milhar via <code>Intl.NumberFormat</code>.</p>
+
+        <div class="example">
+          <div class="example-title">Mesmo número em quatro locales</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">pt-BR</div>
+                  <div class="num" id="l-ptbr">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">en-US</div>
+                  <div class="num" id="l-enus">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">de-DE</div>
+                  <div class="num" id="l-dede">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">fr-FR</div>
+                  <div class="num" id="l-frfr">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>const opts = {
+  end: 1234567.89,
+  decimals: 2,
+  duration: 2000,
+};
+
+// pt-BR → 1.234.567,89
+counterUp("#l-ptbr", { ...opts, locale: "pt-BR" });
+
+// en-US → 1,234,567.89
+counterUp("#l-enus", { ...opts, locale: "en-US" });
+
+// de-DE → 1.234.567,89
+counterUp("#l-dede", { ...opts, locale: "de-DE" });
+
+// fr-FR → 1 234 567,89
+counterUp("#l-frfr", { ...opts, locale: "fr-FR" });</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════ EASING ══════════════════════ -->
+      <section id="easing">
+        <h2>Easing <span class="tag">curva de animação</span></h2>
+        <p class="desc">Três curvas embutidas: <code>"linear"</code>, <code>"easeInOutQuad"</code>, <code>"easeOutCubic"</code>. Também aceita qualquer função <code>(t: number) =&gt; number</code>.</p>
+
+        <div class="example">
+          <div class="example-title">Comparação dos três easings embutidos</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">linear</div>
+                  <div class="num" id="e-linear">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">easeInOutQuad</div>
+                  <div class="num" id="e-inout">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">easeOutCubic</div>
+                  <div class="num" id="e-outcubic">0</div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="e-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#e-linear", {
+  end: 1000,
+  easing: "linear",
+  duration: 2500,
+});
+
+counterUp("#e-inout", {
+  end: 1000,
+  easing: "easeInOutQuad",
+  duration: 2500,
+});
+
+counterUp("#e-outcubic", {
+  end: 1000,
+  easing: "easeOutCubic", // padrão
+  duration: 2500,
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Easing personalizado — função custom (bounceOut)</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Bounce out</div>
+              <div class="num" id="e-bounce">0</div>
+              <div class="controls">
+                <button class="btn-blue" id="e-bounce-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>function bounceOut(t) {
+  const n1 = 7.5625, d1 = 2.75;
+  if (t < 1 / d1) return n1 * t * t;
+  if (t < 2 / d1) return n1 * (t -= 1.5 / d1) * t + 0.75;
+  if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  return n1 * (t -= 2.625 / d1) * t + 0.984375;
+}
+
+counterUp("#e-bounce", {
+  end: 1000,
+  easing: bounceOut, // função diretamente
+  duration: 2200,
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ FORMATTER ════════════════════ -->
+      <section id="formatter">
+        <h2>Formatter <span class="tag">formatação total</span></h2>
+        <p class="desc">A opção <code>formatter</code> recebe <code>(value, element, index)</code> e deve retornar uma string. Substitui toda a lógica padrão de formatação.</p>
+
+        <div class="example">
+          <div class="example-title">Abreviação automática — K / M / B</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Visualizações</div>
+                  <div class="num" id="fmt-views">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Receita global</div>
+                  <div class="num" id="fmt-revenue">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>function abbrev(v) {
+  if (v >= 1e9) return (v / 1e9).toFixed(1) + "B";
+  if (v >= 1e6) return (v / 1e6).toFixed(1) + "M";
+  if (v >= 1e3) return (v / 1e3).toFixed(1) + "K";
+  return Math.floor(v).toString();
+}
+
+counterUp("#fmt-views", {
+  end: 4700000,
+  formatter: abbrev,
+  duration: 2000,
+});
+
+counterUp("#fmt-revenue", {
+  end: 1200000000,
+  formatter: (v) => "R$ " + abbrev(v),
+  duration: 2200,
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Formato de tempo — MM:SS</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Duração do vídeo</div>
+              <div class="num" id="fmt-time">00:00</div>
+            </div>
+            <div class="example-code"><pre>counterUp("#fmt-time", {
+  end: 185, // 3 minutos e 5 segundos
+  duration: 2000,
+  formatter: (v) => {
+    const s = Math.floor(v);
+    const mm = String(Math.floor(s / 60)).padStart(2, "0");
+    const ss = String(s % 60).padStart(2, "0");
+    return `${mm}:${ss}`;
+  },
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Usando o parâmetro <code>index</code> em grupos</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">1º lugar</div>
+                  <div class="num fmt-rank">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">2º lugar</div>
+                  <div class="num fmt-rank">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">3º lugar</div>
+                  <div class="num fmt-rank">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>// formatter recebe (value, element, index)
+// index = posição do elemento no grupo (0-based)
+counterUp(".fmt-rank", {
+  end: 1000,
+  duration: 2000,
+  formatter: (v, el, i) => {
+    const medals = ["🥇", "🥈", "🥉"];
+    return medals[i] + " " + Math.floor(v);
+  },
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ SLEEP / STAGGER ══════════════════ -->
+      <section id="stagger">
+        <h2>Sleep / Stagger <span class="tag">atraso escalonado</span></h2>
+        <p class="desc">A opção <code>sleep</code> (ms) atrasa o início da animação. Ideal para escalonar múltiplos contadores sem <code>setTimeout</code> manual. É cancelado automaticamente por <code>.stop()</code>, <code>.pause()</code> ou <code>.destroy()</code>.</p>
+
+        <div class="example">
+          <div class="example-title">Stagger — cada contador inicia depois do anterior</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">0ms</div>
+                  <div class="num" id="sg1">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">300ms</div>
+                  <div class="num" id="sg2">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">600ms</div>
+                  <div class="num" id="sg3">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">900ms</div>
+                  <div class="num" id="sg4">0</div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="sg-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#sg1", { end: 320,   sleep: 0   });
+counterUp("#sg2", { end: 1450,  sleep: 300 });
+counterUp("#sg3", { end: 9870,  sleep: 600 });
+counterUp("#sg4", { end: 52400, sleep: 900 });
+
+// sleep é cancelado automaticamente por:
+// .stop() / .pause() / .destroy()</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Getter <code>.waiting</code> — monitorar estado do sleep</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Inicia em 2000ms</div>
+              <div class="num" id="sg-wait">0</div>
+              <span id="sg-status" class="status s-waiting">waiting</span>
+              <div class="controls">
+                <button class="btn-blue" id="sg-wait-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>const c = counterUp("#sg-wait", {
+  end: 500,
+  sleep: 2000,   // aguarda 2 segundos
+});
+
+// c.waiting → true enquanto aguarda o sleep
+// c.running → true quando a animação roda
+const poll = setInterval(() => {
+  if (c.waiting)      badge.textContent = "waiting";
+  else if (c.running) badge.textContent = "running";
+  else {
+    badge.textContent = "concluído";
+    clearInterval(poll);
+  }
+}, 100);</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ VIEWPORT ══════════════════════ -->
+      <section id="viewport">
+        <h2>Viewport <span class="tag">startOnView</span></h2>
+        <p class="desc">Com <code>startOnView: true</code>, a animação aguarda o elemento entrar na área visível (usa <code>IntersectionObserver</code>). Role a página para ativar os exemplos abaixo.</p>
+
+        <div class="example">
+          <div class="example-title">Anima ao entrar na viewport — <code>once: true</code> (uma vez só)</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Vendas</div>
+                  <div class="num" id="vp1">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Clientes</div>
+                  <div class="num" id="vp2">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#vp1", {
+  end: 75000,
+  duration: 2000,
+  startOnView: true, // aguarda entrar na tela
+  once: true,        // anima apenas uma vez
+  threshold: 0.2,    // dispara com 20% visível
+  rootMargin: "0px",
+});
+
+counterUp("#vp2", {
+  end: 12000,
+  duration: 2000,
+  startOnView: true,
+  once: false,       // reinicia toda vez que aparecer
+  threshold: 0.5,    // 50% visível para disparar
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Opções avançadas do IntersectionObserver</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Com rootMargin negativo</div>
+              <div class="num" id="vp3">0</div>
+            </div>
+            <div class="example-code"><pre>counterUp("#vp3", {
+  end: 9999,
+  duration: 1800,
+  startOnView: true,
+  once: true,
+  root: null,                       // usa o viewport
+  rootMargin: "0px 0px -80px 0px", // margem interna
+  threshold: 0.1,
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ MÚLTIPLOS ══════════════════════ -->
+      <section id="multiplos">
+        <h2>Múltiplos elementos <span class="tag">group instance</span></h2>
+        <p class="desc">Quando o seletor retorna mais de um elemento, a função retorna uma <em>instância de grupo</em> com a mesma API — aplicada a todos os elementos.</p>
+
+        <div class="example">
+          <div class="example-title">Mesmo valor para todos os elementos</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Métrica A</div>
+                  <div class="num multi-same">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Métrica B</div>
+                  <div class="num multi-same">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Métrica C</div>
+                  <div class="num multi-same">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>const group = counterUp(".multi-same", {
+  end: 9999,
+  duration: 2000,
+});
+
+// Getters do grupo:
+// group.count   → 3  (quantidade de elementos)
+// group.values  → [v1, v2, v3]
+// group.running → true se algum animar
+// group.paused  → true se algum pausar</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Valores diferentes por elemento — <code>.update(array)</code></div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Janeiro</div>
+                  <div class="num multi-diff">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Fevereiro</div>
+                  <div class="num multi-diff">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Março</div>
+                  <div class="num multi-diff">0</div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-gray"   id="mdiff-t1">Trim 1</button>
+                <button class="btn-gray"   id="mdiff-t2">Trim 2</button>
+                <button class="btn-blue"   id="mdiff-t3">Trim 3</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>// Cria com autostart: false, depois usa update
+const g = counterUp(".multi-diff", {
+  autostart: false,
+});
+
+// update distribui um valor por elemento
+g.update([1200, 980, 1540]);   // Trim 1
+g.update([1750, 2100, 1900]);  // Trim 2
+g.update([3200, 2850, 4100]);  // Trim 3
+
+// Se o array tiver menos valores que elementos,
+// o último é repetido para os restantes.</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">NodeList e Array de elementos como target</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">NodeList</div>
+                  <div class="num nodelist-el">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Array</div>
+                  <div class="num array-el">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>// NodeList direto
+const nodes = document.querySelectorAll(".nodelist-el");
+counterUp(nodes, { end: 777, duration: 1800 });
+
+// Array de elementos DOM
+const els = [document.querySelector(".array-el")];
+counterUp(els, { end: 888, duration: 1800 });</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════ CONTROLES ══════════════════════ -->
+      <section id="controles">
+        <h2>Controles <span class="tag">start / pause / resume / stop / reset / set</span></h2>
+        <p class="desc">Controle total sobre o ciclo de vida da animação. Use <code>autostart: false</code> para aguardar uma chamada manual a <code>.start()</code>.</p>
+
+        <div class="example">
+          <div class="example-title">Todos os métodos disponíveis</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Score</div>
+              <div class="num" id="ctrl-num">0</div>
+              <span id="ctrl-status" class="status s-stopped">parado</span>
+              <div class="controls">
+                <button class="btn-green"  id="ctrl-start">Start</button>
+                <button class="btn-yellow" id="ctrl-pause">Pause</button>
+                <button class="btn-blue"   id="ctrl-resume">Resume</button>
+                <button class="btn-red"    id="ctrl-stop">Stop</button>
+                <button class="btn-gray"   id="ctrl-reset">Reset</button>
+              </div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px">
+                value: <span id="ctrl-val">0</span> &nbsp;|&nbsp;
+                running: <span id="ctrl-r">false</span> &nbsp;|&nbsp;
+                paused: <span id="ctrl-p">false</span>
+              </div>
+            </div>
+            <div class="example-code"><pre>const c = counterUp("#ctrl-num", {
+  end: 10000,
+  duration: 5000,
+  autostart: false, // aguarda .start() manual
+});
+
+// .start()  → inicia; se pausado, retoma
+// .pause()  → pausa preservando progresso
+// .resume() → continua do ponto de pausa
+// .stop()   → para e reseta progresso interno
+// .reset()  → para e volta display para start
+
+// Getters em tempo real:
+c.value   // número atual (sem formatação)
+c.running // true se animando
+c.paused  // true se pausado
+c.waiting // true se aguardando sleep</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title"><code>.set(value)</code> — definir valor instantaneamente</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Valor direto (sem animação)</div>
+              <div class="num" id="set-num">0</div>
+              <div class="controls">
+                <button class="btn-gray" id="set-100">Set 100</button>
+                <button class="btn-gray" id="set-500">Set 500</button>
+                <button class="btn-gray" id="set-999">Set 999</button>
+                <button class="btn-blue" id="set-anim">Animar → 2000</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>const c = counterUp("#set-num", {
+  end: 1000,
+  autostart: false,
+});
+
+// Define instantaneamente — para qualquer animação
+c.set(100); // → exibe "100" imediatamente
+c.set(500); // → exibe "500" imediatamente
+c.set(999); // → exibe "999" imediatamente
+
+// Anima do valor atual (999) até 2000
+c.update(2000, { duration: 1200 });</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════ CALLBACKS ═══════════════════ -->
+      <section id="callbacks">
+        <h2>Callbacks <span class="tag">onUpdate / onComplete</span></h2>
+        <p class="desc"><code>onUpdate(value, element, index)</code> é chamado a cada frame. <code>onComplete(value, element, index)</code> é chamado uma vez ao terminar. Em modo headless, <code>element</code> é <code>null</code>.</p>
+
+        <div class="example">
+          <div class="example-title">onUpdate + onComplete em tempo real</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Contador</div>
+              <div class="num" id="cb-num">0</div>
+              <div class="log" id="cb-log" style="margin-top:10px"></div>
+              <div class="controls">
+                <button class="btn-blue" id="cb-restart">Reiniciar</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>counterUp("#cb-num", {
+  end: 500,
+  duration: 2000,
+
+  onUpdate: (value, element, index) => {
+    // chamado a cada frame de animação (~60fps)
+    log(`onUpdate → ${value.toFixed(1)}`);
+  },
+
+  onComplete: (value, element, index) => {
+    // chamado uma vez ao terminar
+    log(`✔ onComplete → ${value}`);
+  },
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Usando onUpdate para sincronizar outros elementos</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Valor principal</div>
+              <div class="num" id="cb-main">0</div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:6px">
+                Progresso: <span id="cb-bar-pct">0%</span>
+              </div>
+              <div class="pbar-wrap" style="max-width:200px; margin-top:4px">
+                <div class="pbar-fill" id="cb-bar"></div>
+              </div>
+            </div>
+            <div class="example-code"><pre>const MAX = 800;
+
+counterUp("#cb-main", {
+  end: MAX,
+  duration: 2500,
+
+  onUpdate: (value) => {
+    // atualiza barra de progresso em sincronia
+    const pct = (value / MAX * 100).toFixed(1);
+    barEl.style.width = pct + "%";
+    pctEl.textContent = pct + "%";
+  },
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════ UPDATE ════════════════════ -->
+      <section id="update">
+        <h2>Update <span class="tag">.update()</span></h2>
+        <p class="desc"><code>.update(nextEnd, nextOptions?)</code> muda o valor alvo e reinicia a animação a partir do valor atual. Ideal para dados em tempo real sem recriar a instância.</p>
+
+        <div class="example">
+          <div class="example-title">Preço em tempo real — anima do valor atual para o novo</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Cotação</div>
+              <div class="num" id="upd-price">R$ 0,00</div>
+              <div class="controls">
+                <button class="btn-gray" id="upd-low">R$ 1.200</button>
+                <button class="btn-gray" id="upd-mid">R$ 3.450</button>
+                <button class="btn-gray" id="upd-high">R$ 9.999</button>
+                <button class="btn-blue" id="upd-rand">Aleatório</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>const ticker = counterUp("#upd-price", {
+  end: 1200,
+  duration: 800,
+  prefix: "R$ ",
+  decimals: 2,
+});
+
+// Anima do valor atual até o novo destino
+btn_low.onclick  = () => ticker.update(1200);
+btn_mid.onclick  = () => ticker.update(3450);
+btn_high.onclick = () => ticker.update(9999);
+
+// Aceita novas opções junto com o novo valor
+btn_rand.onclick = () =>
+  ticker.update(
+    +(Math.random() * 10000).toFixed(2),
+    { duration: 500 },
+  );</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Trocar formatação dinamicamente com update</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label">Valor</div>
+              <div class="num" id="upd-fmt">0</div>
+              <div class="controls">
+                <button class="btn-gray" id="upd-brl">R$ (BRL)</button>
+                <button class="btn-gray" id="upd-usd">$ (USD)</button>
+                <button class="btn-gray" id="upd-pct">% (Pct)</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>const c = counterUp("#upd-fmt", {
+  end: 1500,
+  duration: 1000,
+});
+
+btnBRL.onclick = () =>
+  c.update(1500, {
+    prefix: "R$ ", suffix: "",
+    decimals: 2, locale: "pt-BR",
+  });
+
+btnUSD.onclick = () =>
+  c.update(1500, {
+    prefix: "$ ", suffix: "",
+    decimals: 2, locale: "en-US",
+  });
+
+btnPct.onclick = () =>
+  c.update(75, {
+    prefix: "", suffix: "%",
+    decimals: 1, useGrouping: false,
+  });</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════ AUTO-DETECÇÃO ═══════════════════ -->
+      <section id="autodetect">
+        <h2>Auto-detecção <span class="tag">end e decimals do HTML</span></h2>
+        <p class="desc">Quando <code>end</code> é omitido e há um elemento DOM, a biblioteca lê o <code>textContent</code> e usa esse valor como destino. O <code>decimals</code> também é inferido automaticamente. Perfeito para conteúdo renderizado pelo servidor.</p>
+
+        <div class="example">
+          <div class="example-title">HTML já contém o valor — zero configuração extra</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Inteiro</div>
+                  <div class="num auto-det">42500</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Decimal (auto)</div>
+                  <div class="num auto-det">15.75</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Grande</div>
+                  <div class="num auto-det">1234567</div>
+                </div>
+              </div>
+            </div>
+            <div class="example-code"><pre>&lt;!-- HTML renderizado pelo servidor (PHP, etc.) --&gt;
+&lt;div class="auto-det"&gt;42500&lt;/div&gt;
+&lt;div class="auto-det"&gt;15.75&lt;/div&gt;
+&lt;div class="auto-det"&gt;1234567&lt;/div&gt;
+
+&lt;script&gt;
+// Não precisa de `end` nem de `decimals` —
+// cada elemento usa seu textContent como alvo.
+counterUp(".auto-det", {
+  duration: 2000,
+});
+&lt;/script&gt;</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ CONTAGEM REGRESSIVA ════════════════ -->
+      <section id="countdown">
+        <h2>Contagem regressiva <span class="tag">start &gt; end</span></h2>
+        <p class="desc">Basta definir <code>start</code> maior que <code>end</code>. A animação desce automaticamente.</p>
+
+        <div class="example">
+          <div class="example-title">Countdown — bateria, estoque e cronômetro</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Bateria</div>
+                  <div class="num" id="cd-bat">100%</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Estoque</div>
+                  <div class="num" id="cd-stock">1000</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">Cronômetro</div>
+                  <div class="num" id="cd-time">05:00</div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="cd-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>// start > end → conta de cima para baixo
+counterUp("#cd-bat", {
+  start: 100, end: 0,
+  suffix: "%",
+  duration: 3000,
+  useGrouping: false,
+});
+
+counterUp("#cd-stock", {
+  start: 1000, end: 37,
+  duration: 2500,
+});
+
+// Cronômetro regressivo com formatter
+counterUp("#cd-time", {
+  start: 300, end: 0, // 300 s → 0
+  duration: 3000,
+  formatter: (v) => {
+    const s = Math.ceil(v);
+    return String(Math.floor(s / 60)).padStart(2, "0")
+         + ":" + String(s % 60).padStart(2, "0");
+  },
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════ HEADLESS ════════════════════ -->
+      <section id="headless">
+        <h2>Modo Headless <span class="tag">sem DOM</span></h2>
+        <p class="desc">Passe <code>null</code> como target. A animação roda sem elemento DOM — os valores chegam exclusivamente pelo <code>onUpdate</code>. Funciona em Node.js, Next.js, Nuxt e Vitest sem jsdom.</p>
+
+        <div class="example">
+          <div class="example-title">Barras de progresso controladas por counters headless</div>
+          <div class="example-body">
+            <div class="example-demo" style="gap:16px; width:100%">
+              <div class="pbar-row">
+                <div class="pbar-info">
+                  <span class="label">Upload</span>
+                  <span class="num" id="hl-pct" style="font-size:1rem">0%</span>
+                </div>
+                <div class="pbar-wrap"><div class="pbar-fill" id="hl-bar1"></div></div>
+              </div>
+              <div class="pbar-row">
+                <div class="pbar-info">
+                  <span class="label">Download</span>
+                  <span class="num" id="hl-mb" style="font-size:1rem">0.0 MB</span>
+                </div>
+                <div class="pbar-wrap">
+                  <div class="pbar-fill" id="hl-bar2" style="background:#16a34a"></div>
+                </div>
+              </div>
+              <div class="pbar-row">
+                <div class="pbar-info">
+                  <span class="label">Processamento</span>
+                  <span class="num" id="hl-items" style="font-size:1rem">0 / 1000</span>
+                </div>
+                <div class="pbar-wrap">
+                  <div class="pbar-fill" id="hl-bar3" style="background:#9333ea"></div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="hl-restart">Reiniciar</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>// target = null → modo headless (zero DOM)
+
+counterUp(null, {
+  start: 0, end: 100,
+  duration: 3000,
+  onUpdate: (v) => {
+    pctEl.textContent  = Math.round(v) + "%";
+    bar1.style.width   = v + "%";
+  },
+  onComplete: () => {
+    pctEl.textContent = "100% ✓";
+  },
+});
+
+counterUp(null, {
+  start: 0, end: 512,
+  duration: 4000,
+  onUpdate: (v) => {
+    mbEl.textContent = v.toFixed(1) + " MB";
+    bar2.style.width = (v / 512 * 100) + "%";
+  },
+});
+
+counterUp(null, {
+  start: 0, end: 1000,
+  duration: 3500,
+  onUpdate: (v) => {
+    const n = Math.floor(v);
+    itemsEl.textContent = n + " / 1000";
+    bar3.style.width    = (v / 10) + "%";
+  },
+});</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Simulação de saída Node.js / SSR</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="label" style="margin-bottom:6px">Equivalente no Node.js</div>
+              <div class="log" id="hl-nodelog" style="max-height:130px; width:100%"></div>
+            </div>
+            <div class="example-code"><pre>// Node.js — importe o ESM:
+// import { counterUp } from "@nullsablex/counter-up";
+
+counterUp(null, {
+  start: 0,
+  end: 1000,
+  duration: 3000,
+  onUpdate: (value) => {
+    process.stdout.write(`\r${Math.round(value)}`);
+  },
+  onComplete: (value) => {
+    console.log(`\nFim: ${value}`);
+  },
+});
+
+// Compatível com:
+// ✓ Node.js puro
+// ✓ Next.js (getServerSideProps)
+// ✓ Nuxt (server-side)
+// ✓ Vitest sem jsdom
+// ✓ Qualquer ambiente sem window</pre></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>
+        <strong>@nullsablex/counter-up</strong> &mdash; MIT &mdash;
+        <a href="https://github.com/NullSablex/counter-up">GitHub</a> &mdash;
+        <a href="https://www.npmjs.com/package/@nullsablex/counter-up">npm</a>
+      </p>
+    </footer>
 
     <script src="../dist/counterup.umd.min.js"></script>
     <script>
-      let instance = null;
+      const $ = (id) => document.getElementById(id);
 
-      function runCounter() {
-        instance = CounterUp.counterUp(".metric", {
-          start: 0,
-          end: 12890.55,
-          duration: 2200,
-          decimals: 2,
-          prefix: "R$ ",
-          easing: "easeOutCubic",
+      // ── BÁSICO ────────────────────────────────────────────────────────────
+      counterUp("#b1", { end: 48230, duration: 2000 });
+
+      let bSpeedInst = null;
+      function runSpeedDemo() {
+        if (bSpeedInst) bSpeedInst.forEach(i => i.destroy());
+        bSpeedInst = [
+          counterUp("#b-fast", { end: 1000, duration: 800 }),
+          counterUp("#b-mid",  { end: 1000, duration: 2000 }),
+          counterUp("#b-slow", { end: 1000, duration: 4500 }),
+        ];
+      }
+      runSpeedDemo();
+      $("b-speed-replay").onclick = runSpeedDemo;
+
+      const bZero = counterUp("#b-zero", { end: 99999, duration: 0, autostart: false });
+      $("b-zero-go").onclick = () => { bZero.reset(); bZero.start(); };
+
+      // ── FORMATAÇÃO ────────────────────────────────────────────────────────
+      counterUp("#f-currency", { end: 128750.90, decimals: 2, prefix: "R$ ", duration: 2200, locale: "pt-BR" });
+      counterUp("#f-pct1", { end: 97,    suffix: "%", duration: 1600, useGrouping: false });
+      counterUp("#f-pct2", { end: 99.98, suffix: "%", decimals: 2, duration: 1800, useGrouping: false });
+      counterUp("#f-pts",  { end: 8450,  suffix: " pts", duration: 1800 });
+      counterUp("#f-temp", { end: 36.6,  suffix: " °C", decimals: 1, duration: 1500, useGrouping: false });
+      counterUp("#f-km",   { end: 42.195, suffix: " km", decimals: 3, duration: 2000, useGrouping: false });
+      counterUp("#f-grp1", { end: 1234567, useGrouping: true,  duration: 2000 });
+      counterUp("#f-grp2", { end: 1234567, useGrouping: false, duration: 2000 });
+
+      // ── LOCALE ────────────────────────────────────────────────────────────
+      const lo = { end: 1234567.89, decimals: 2, duration: 2000 };
+      counterUp("#l-ptbr", { ...lo, locale: "pt-BR" });
+      counterUp("#l-enus", { ...lo, locale: "en-US" });
+      counterUp("#l-dede", { ...lo, locale: "de-DE" });
+      counterUp("#l-frfr", { ...lo, locale: "fr-FR" });
+
+      // ── EASING ────────────────────────────────────────────────────────────
+      let easeInst = null;
+      function runEasing() {
+        if (easeInst) easeInst.forEach(i => i.destroy());
+        easeInst = [
+          counterUp("#e-linear",   { end: 1000, easing: "linear",        duration: 2500 }),
+          counterUp("#e-inout",    { end: 1000, easing: "easeInOutQuad",  duration: 2500 }),
+          counterUp("#e-outcubic", { end: 1000, easing: "easeOutCubic",   duration: 2500 }),
+        ];
+      }
+      runEasing();
+      $("e-replay").onclick = runEasing;
+
+      function bounceOut(t) {
+        const n1 = 7.5625, d1 = 2.75;
+        if (t < 1 / d1)   return n1 * t * t;
+        if (t < 2 / d1)   return n1 * (t -= 1.5  / d1) * t + 0.75;
+        if (t < 2.5 / d1) return n1 * (t -= 2.25 / d1) * t + 0.9375;
+        return n1 * (t -= 2.625 / d1) * t + 0.984375;
+      }
+      let bounceInst = counterUp("#e-bounce", { end: 1000, easing: bounceOut, duration: 2200 });
+      $("e-bounce-replay").onclick = () => {
+        bounceInst.destroy();
+        bounceInst = counterUp("#e-bounce", { end: 1000, easing: bounceOut, duration: 2200 });
+      };
+
+      // ── FORMATTER ─────────────────────────────────────────────────────────
+      function abbrev(v) {
+        if (v >= 1e9) return (v / 1e9).toFixed(1) + "B";
+        if (v >= 1e6) return (v / 1e6).toFixed(1) + "M";
+        if (v >= 1e3) return (v / 1e3).toFixed(1) + "K";
+        return Math.floor(v).toString();
+      }
+      counterUp("#fmt-views",   { end: 4700000,    formatter: abbrev,                          duration: 2000 });
+      counterUp("#fmt-revenue", { end: 1200000000, formatter: (v) => "R$ " + abbrev(v),        duration: 2200 });
+      counterUp("#fmt-time",    {
+        end: 185, duration: 2000,
+        formatter: (v) => {
+          const s = Math.floor(v);
+          return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+        },
+      });
+      counterUp(".fmt-rank", {
+        end: 1000, duration: 2000,
+        formatter: (v, el, i) => (["🥇", "🥈", "🥉"][i] || "#" + (i + 1)) + " " + Math.floor(v),
+      });
+
+      // ── SLEEP / STAGGER ───────────────────────────────────────────────────
+      let sgInst = null;
+      function runStagger() {
+        if (sgInst) sgInst.forEach(i => i.destroy());
+        sgInst = [
+          counterUp("#sg1", { end: 320,   sleep: 0   }),
+          counterUp("#sg2", { end: 1450,  sleep: 300 }),
+          counterUp("#sg3", { end: 9870,  sleep: 600 }),
+          counterUp("#sg4", { end: 52400, sleep: 900 }),
+        ];
+      }
+      runStagger();
+      $("sg-replay").onclick = runStagger;
+
+      let sgWaitInst = null, sgPoll = null;
+      function runWaiting() {
+        if (sgWaitInst) sgWaitInst.destroy();
+        if (sgPoll) clearInterval(sgPoll);
+        const badge = $("sg-status");
+        sgWaitInst = counterUp("#sg-wait", { end: 500, sleep: 2000 });
+        sgPoll = setInterval(() => {
+          if (sgWaitInst.waiting)      { badge.className = "status s-waiting"; badge.textContent = "waiting"; }
+          else if (sgWaitInst.running) { badge.className = "status s-running"; badge.textContent = "running"; }
+          else { badge.className = "status s-done"; badge.textContent = "concluído"; clearInterval(sgPoll); }
+        }, 100);
+      }
+      runWaiting();
+      $("sg-wait-replay").onclick = runWaiting;
+
+      // ── VIEWPORT ──────────────────────────────────────────────────────────
+      counterUp("#vp1", { end: 75000, duration: 2000, startOnView: true, once: true,  threshold: 0.2 });
+      counterUp("#vp2", { end: 12000, duration: 2000, startOnView: true, once: false, threshold: 0.5 });
+      counterUp("#vp3", { end: 9999,  duration: 1800, startOnView: true, once: true,  rootMargin: "0px 0px -80px 0px", threshold: 0.1 });
+
+      // ── MÚLTIPLOS ─────────────────────────────────────────────────────────
+      counterUp(".multi-same", { end: 9999, duration: 2000 });
+
+      const mdiff = counterUp(".multi-diff", { autostart: false });
+      mdiff.update([1200, 980, 1540], { duration: 1400 });
+      $("mdiff-t1").onclick = () => mdiff.update([1200, 980,  1540], { duration: 1000 });
+      $("mdiff-t2").onclick = () => mdiff.update([1750, 2100, 1900], { duration: 1000 });
+      $("mdiff-t3").onclick = () => mdiff.update([3200, 2850, 4100], { duration: 1000 });
+
+      counterUp(document.querySelectorAll(".nodelist-el"), { end: 777, duration: 1800 });
+      counterUp([document.querySelector(".array-el")],    { end: 888, duration: 1800 });
+
+      // ── CONTROLES ─────────────────────────────────────────────────────────
+      const ctrlC = counterUp("#ctrl-num", { end: 10000, duration: 5000, autostart: false });
+      function pollCtrl() {
+        const s = $("ctrl-status");
+        if (ctrlC.waiting)      { s.className = "status s-waiting"; s.textContent = "waiting"; }
+        else if (ctrlC.running) { s.className = "status s-running"; s.textContent = "animando"; }
+        else if (ctrlC.paused)  { s.className = "status s-paused";  s.textContent = "pausado"; }
+        else                    { s.className = "status s-stopped"; s.textContent = "parado"; }
+        $("ctrl-val").textContent = Math.round(ctrlC.value);
+        $("ctrl-r").textContent   = ctrlC.running;
+        $("ctrl-p").textContent   = ctrlC.paused;
+        requestAnimationFrame(pollCtrl);
+      }
+      pollCtrl();
+      $("ctrl-start").onclick  = () => ctrlC.start();
+      $("ctrl-pause").onclick  = () => ctrlC.pause();
+      $("ctrl-resume").onclick = () => ctrlC.resume();
+      $("ctrl-stop").onclick   = () => ctrlC.stop();
+      $("ctrl-reset").onclick  = () => ctrlC.reset();
+
+      const setC = counterUp("#set-num", { end: 1000, autostart: false });
+      $("set-100").onclick  = () => setC.set(100);
+      $("set-500").onclick  = () => setC.set(500);
+      $("set-999").onclick  = () => setC.set(999);
+      $("set-anim").onclick = () => setC.update(2000, { duration: 1200 });
+
+      // ── CALLBACKS ─────────────────────────────────────────────────────────
+      const cbLog = $("cb-log");
+      let cbLines = [];
+      function cbAppend(msg) {
+        cbLines.push(msg);
+        if (cbLines.length > 8) cbLines.shift();
+        cbLog.innerHTML = cbLines.map(l => "<div>" + l + "</div>").join("");
+        cbLog.scrollTop = cbLog.scrollHeight;
+      }
+      let cbInst = null;
+      function runCb() {
+        if (cbInst) cbInst.destroy();
+        cbLines = []; cbLog.innerHTML = "";
+        cbInst = counterUp("#cb-num", {
+          end: 500, duration: 2000,
+          onUpdate:  (v) => cbAppend("onUpdate → " + v.toFixed(1)),
+          onComplete:(v) => cbAppend("✔ onComplete → " + v),
         });
       }
+      runCb();
+      $("cb-restart").onclick = runCb;
 
-      runCounter();
-
-      document.getElementById("replay").addEventListener("click", function () {
-        if (instance) instance.destroy();
-        runCounter();
+      counterUp("#cb-main", {
+        end: 800, duration: 2500,
+        onUpdate: (v) => {
+          const pct = (v / 800 * 100).toFixed(1);
+          $("cb-bar").style.width = pct + "%";
+          $("cb-bar-pct").textContent = pct + "%";
+        },
       });
 
-      document.getElementById("pause").addEventListener("click", function () {
-        if (!instance) return;
-        if (instance.paused) {
-          instance.resume();
-          return;
-        }
-        if (instance.running) {
-          instance.pause();
-        }
+      // ── UPDATE ────────────────────────────────────────────────────────────
+      const ticker = counterUp("#upd-price", { end: 1200, duration: 800, prefix: "R$ ", decimals: 2 });
+      $("upd-low").onclick  = () => ticker.update(1200, { duration: 800 });
+      $("upd-mid").onclick  = () => ticker.update(3450, { duration: 800 });
+      $("upd-high").onclick = () => ticker.update(9999, { duration: 800 });
+      $("upd-rand").onclick = () => ticker.update(+(Math.random() * 10000).toFixed(2), { duration: 500 });
+
+      const updFmt = counterUp("#upd-fmt", { end: 1500, duration: 1000 });
+      $("upd-brl").onclick = () => updFmt.update(1500, { prefix: "R$ ", suffix: "",  decimals: 2, locale: "pt-BR" });
+      $("upd-usd").onclick = () => updFmt.update(1500, { prefix: "$ ",  suffix: "",  decimals: 2, locale: "en-US" });
+      $("upd-pct").onclick = () => updFmt.update(75,   { prefix: "",    suffix: "%", decimals: 1, useGrouping: false });
+
+      // ── AUTO-DETECÇÃO ─────────────────────────────────────────────────────
+      counterUp(".auto-det", { duration: 2000 });
+
+      // ── COUNTDOWN ─────────────────────────────────────────────────────────
+      let cdInst = null;
+      function runCountdown() {
+        if (cdInst) cdInst.forEach(i => i.destroy());
+        cdInst = [
+          counterUp("#cd-bat",   { start: 100, end: 0, suffix: "%", duration: 3000, useGrouping: false }),
+          counterUp("#cd-stock", { start: 1000, end: 37, duration: 2500 }),
+          counterUp("#cd-time",  {
+            start: 300, end: 0, duration: 3000,
+            formatter: (v) => {
+              const s = Math.ceil(v);
+              return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+            },
+          }),
+        ];
+      }
+      runCountdown();
+      $("cd-replay").onclick = runCountdown;
+
+      // ── HEADLESS ──────────────────────────────────────────────────────────
+      let hlInst = null;
+      function runHeadless() {
+        if (hlInst) hlInst.forEach(i => i.destroy());
+        $("hl-pct").textContent   = "0%";
+        $("hl-mb").textContent    = "0.0 MB";
+        $("hl-items").textContent = "0 / 1000";
+        $("hl-bar1").style.width  = "0%";
+        $("hl-bar2").style.width  = "0%";
+        $("hl-bar3").style.width  = "0%";
+
+        const h1 = counterUp(null, {
+          start: 0, end: 100, duration: 3000,
+          onUpdate:  (v) => { $("hl-pct").textContent = Math.round(v) + "%"; $("hl-bar1").style.width = v + "%"; },
+          onComplete: () => { $("hl-pct").textContent = "100% ✓"; },
+        });
+        const h2 = counterUp(null, {
+          start: 0, end: 512, duration: 4000,
+          onUpdate: (v) => { $("hl-mb").textContent = v.toFixed(1) + " MB"; $("hl-bar2").style.width = (v / 512 * 100) + "%"; },
+        });
+        const h3 = counterUp(null, {
+          start: 0, end: 1000, duration: 3500,
+          onUpdate: (v) => { const n = Math.floor(v); $("hl-items").textContent = n + " / 1000"; $("hl-bar3").style.width = (v / 10) + "%"; },
+        });
+        hlInst = [h1, h2, h3];
+      }
+      runHeadless();
+      $("hl-restart").onclick = runHeadless;
+
+      // Simulação da saída Node.js
+      const nlLog = $("hl-nodelog");
+      let nlLines = [];
+      function nlAppend(msg) {
+        nlLines.push(msg);
+        if (nlLines.length > 10) nlLines.shift();
+        nlLog.innerHTML = nlLines.map(l => "<div>" + l + "</div>").join("");
+        nlLog.scrollTop = nlLog.scrollHeight;
+      }
+      counterUp(null, {
+        start: 0, end: 1000, duration: 3000,
+        onUpdate:  (v) => nlAppend("stdout: " + Math.round(v)),
+        onComplete:(v) => nlAppend("✔ Fim: " + v),
       });
     </script>
+
   </body>
 </html>
