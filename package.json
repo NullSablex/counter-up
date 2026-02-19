@@ -1,6 +1,6 @@
 {
   "name": "@nullsablex/counter-up",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "Biblioteca JS pura para animação de contadores numéricos",
   "author": "NullSablex",
   "repository": {
@@ -20,9 +20,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "types": "./src/counterup.d.ts",
   "module": "./dist/counterup.esm.js",
   "exports": {
     ".": {
+      "types": "./src/counterup.d.ts",
       "import": "./dist/counterup.esm.js",
       "default": "./dist/counterup.umd.js"
     }
@@ -44,7 +46,10 @@
     "counter",
     "counterup",
     "animation",
-    "vanilla-js"
+    "vanilla-js",
+    "typescript",
+    "ssr",
+    "headless"
   ],
   "license": "MIT"
 }

@@ -1,4 +1,14 @@
-/* @nullsablex/counter-up v0.1.7 | Author: NullSablex | git+https://github.com/NullSablex/counter-up.git | MIT License */
+/* @nullsablex/counter-up v0.2.0 | Author: NullSablex | git+https://github.com/NullSablex/counter-up.git | MIT License */
+const raf =
+  typeof requestAnimationFrame !== "undefined"
+    ? (cb) => requestAnimationFrame(cb)
+    : (cb) => setTimeout(() => cb(Date.now()), 16);
+
+const caf =
+  typeof cancelAnimationFrame !== "undefined"
+    ? (id) => cancelAnimationFrame(id)
+    : (id) => clearTimeout(id);
+
 const easings = {
   linear: (t) => t,
   easeInOutQuad: (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
@@ -16,6 +26,7 @@ const defaultOptions = {
   useGrouping: true,
   easing: "easeOutCubic",
   formatter: null,
+  sleep: 0,
   autostart: true,
   startOnView: false,
   once: true,
@@ -66,8 +77,35 @@ function isElement(target) {
   return typeof Element !== "undefined" && target instanceof Element;
 }
 
+function readElementValue(element) {
+  const text = (element.textContent || "").trim();
+  // Strip everything except digits, dot, comma and minus sign
+  const cleaned = text.replace(/[^\d.,-]/g, "");
+  if (!cleaned) return null;
+  // Remove commas (treat as thousands separator) and parse
+  const n = parseFloat(cleaned.replace(/,/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+
+function readElementDecimals(element) {
+  const text = (element.textContent || "").trim();
+  const cleaned = text.replace(/[^\d.,-]/g, "").replace(/,/g, "");
+  const dot = cleaned.indexOf(".");
+  return dot === -1 ? 0 : cleaned.length - dot - 1;
+}
+
 function resolveElements(target) {
+  if (target == null) {
+    return [null];
+  }
+
   if (typeof target === "string") {
+    if (typeof document === "undefined") {
+      throw new Error(
+        "counterUp: `document` não está disponível neste ambiente. " +
+          "Passe um elemento DOM diretamente ou use modo headless (target null + onUpdate)."
+      );
+    }
     return Array.from(document.querySelectorAll(target));
   }
 
@@ -91,12 +129,26 @@ function resolveElements(target) {
 }
 
 function createCounterInstance(element, userOptions = {}, index = 0) {
-  if (!element) {
+  if (element !== null && !isElement(element)) {
     throw new Error("counterUp: target element not found.");
   }
 
+  // When end is not provided and there is a DOM element, read its current text as the target value.
+  // When decimals is also not provided, infer it from the element's text.
+  const autoEnd =
+    element !== null && userOptions.end === undefined
+      ? readElementValue(element)
+      : null;
+
+  const autoDecimals =
+    autoEnd !== null && userOptions.decimals === undefined
+      ? readElementDecimals(element)
+      : null;
+
   let options = normalizeOptions({
     ...defaultOptions,
+    ...(autoEnd !== null ? { end: autoEnd } : {}),
+    ...(autoDecimals !== null ? { decimals: autoDecimals } : {}),
     ...userOptions,
     element,
     index,
@@ -109,6 +161,7 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     elapsed: 0,
     startTime: null,
     rafId: null,
+    sleepId: null,
     isRunning: false,
     isPaused: false,
     destroyed: false,
@@ -118,7 +171,9 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
 
   function render(value, notify = true) {
     state.value = value;
-    element.textContent = formatNumber(value, options);
+    if (element !== null) {
+      element.textContent = formatNumber(value, options);
+    }
     if (notify && typeof options.onUpdate === "function") {
       options.onUpdate(value, element, index);
     }
@@ -126,8 +181,15 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
 
   function cancelFrame() {
     if (state.rafId !== null) {
-      cancelAnimationFrame(state.rafId);
+      caf(state.rafId);
       state.rafId = null;
+    }
+  }
+
+  function clearSleep() {
+    if (state.sleepId !== null) {
+      clearTimeout(state.sleepId);
+      state.sleepId = null;
     }
   }
 
@@ -154,7 +216,7 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     render(nextValue);
 
     if (progress < 1) {
-      state.rafId = requestAnimationFrame(animate);
+      state.rafId = raf(animate);
       return;
     }
 
@@ -170,19 +232,32 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
 
   function play(from, to) {
     if (state.destroyed) return api;
+    clearSleep();
     cancelFrame();
     state.from = toNumber(from, state.value);
     state.to = toNumber(to, state.to);
     state.elapsed = 0;
     state.startTime = null;
     state.isPaused = false;
-    state.isRunning = true;
     state.hasPlayed = true;
-    state.rafId = requestAnimationFrame(animate);
+
+    const sleepMs = Math.max(0, toNumber(options.sleep, 0));
+    if (sleepMs > 0) {
+      state.sleepId = setTimeout(() => {
+        state.sleepId = null;
+        state.isRunning = true;
+        state.rafId = raf(animate);
+      }, sleepMs);
+    } else {
+      state.isRunning = true;
+      state.rafId = raf(animate);
+    }
+
     return api;
   }
 
   function stop() {
+    clearSleep();
     cancelFrame();
     state.isRunning = false;
     state.isPaused = false;
@@ -206,6 +281,11 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
   }
 
   function pause() {
+    if (state.sleepId !== null) {
+      clearSleep();
+      state.isPaused = true;
+      return api;
+    }
     if (!state.isRunning) return api;
     cancelFrame();
     state.isRunning = false;
@@ -221,7 +301,7 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     state.isPaused = false;
     // Re-anchor startTime using the saved elapsed time.
     state.startTime = null;
-    state.rafId = requestAnimationFrame(animate);
+    state.rafId = raf(animate);
     return api;
   }
 
@@ -265,6 +345,7 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     if (
       !options.startOnView ||
       !options.autostart ||
+      element === null ||
       typeof IntersectionObserver === "undefined"
     ) {
       return;
@@ -320,6 +401,9 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     },
     get paused() {
       return state.isPaused;
+    },
+    get waiting() {
+      return state.sleepId !== null;
     },
   };
 
@@ -393,6 +477,9 @@ function createGroupInstance(elements, userOptions) {
     },
     get paused() {
       return instances.some((instance) => instance.paused);
+    },
+    get waiting() {
+      return instances.some((instance) => instance.waiting);
     },
     get count() {
       return instances.length;
