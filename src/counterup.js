@@ -1,18 +1,33 @@
-const raf =
+const raf = (cb) =>
   typeof requestAnimationFrame !== "undefined"
-    ? (cb) => requestAnimationFrame(cb)
-    : (cb) => setTimeout(() => cb(Date.now()), 16);
+    ? requestAnimationFrame(cb)
+    : setTimeout(() => cb(Date.now()), 16);
 
-const caf =
+const caf = (id) =>
   typeof cancelAnimationFrame !== "undefined"
-    ? (id) => cancelAnimationFrame(id)
-    : (id) => clearTimeout(id);
+    ? cancelAnimationFrame(id)
+    : clearTimeout(id);
 
 const easings = {
   linear: (t) => t,
+  easeInQuad: (t) => t * t,
+  easeOutQuad: (t) => 1 - (1 - t) * (1 - t),
   easeInOutQuad: (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2),
+  easeInCubic: (t) => t * t * t,
   easeOutCubic: (t) => 1 - Math.pow(1 - t, 3),
+  easeInOutCubic: (t) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  easeOutQuart: (t) => 1 - Math.pow(1 - t, 4),
+  easeOutExpo: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
 };
+
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
 
 const defaultOptions = {
   start: 0,
@@ -26,6 +41,7 @@ const defaultOptions = {
   easing: "easeOutCubic",
   formatter: null,
   sleep: 0,
+  respectReducedMotion: true,
   autostart: true,
   startOnView: false,
   once: true,
@@ -41,21 +57,48 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
+function resolveEasing(easing) {
+  if (typeof easing === "function") return easing;
+  return easings[easing] || easings.easeOutCubic;
+}
+
+function shouldReduceMotion(options) {
+  return options.respectReducedMotion !== false && prefersReducedMotion();
+}
+
 function normalizeOptions(options) {
+  const requestedDuration = Math.max(
+    0,
+    toNumber(options.duration, defaultOptions.duration),
+  );
+
   const normalized = {
     ...options,
-    start: toNumber(options.start, 0),
-    end: toNumber(options.end, 100),
-    duration: Math.max(0, toNumber(options.duration, 2000)),
-    decimals: Math.max(0, Math.floor(toNumber(options.decimals, 0))),
+    start: toNumber(options.start, defaultOptions.start),
+    end: toNumber(options.end, defaultOptions.end),
+    duration: shouldReduceMotion(options) ? 0 : requestedDuration,
+    decimals: Math.max(0, Math.floor(toNumber(options.decimals, defaultOptions.decimals))),
   };
 
-  normalized.easingFn =
-    typeof normalized.easing === "function"
-      ? normalized.easing
-      : easings[normalized.easing] || easings.easeOutCubic;
+  normalized.easingFn = resolveEasing(normalized.easing);
+  normalized.numberFormat = new Intl.NumberFormat(normalized.locale, {
+    minimumFractionDigits: normalized.decimals,
+    maximumFractionDigits: normalized.decimals,
+    useGrouping: normalized.useGrouping,
+  });
 
   return normalized;
+}
+
+function getLocaleSeparators(locale) {
+  try {
+    const parts = new Intl.NumberFormat(locale).formatToParts(1234.5);
+    const decimal = parts.find((p) => p.type === "decimal")?.value || ".";
+    const group = parts.find((p) => p.type === "group")?.value || ",";
+    return { decimal, group };
+  } catch {
+    return { decimal: ".", group: "," };
+  }
 }
 
 function formatNumber(value, options) {
@@ -63,34 +106,36 @@ function formatNumber(value, options) {
     return options.formatter(value, options.element, options.index);
   }
 
-  const formatted = new Intl.NumberFormat(options.locale, {
-    minimumFractionDigits: options.decimals,
-    maximumFractionDigits: options.decimals,
-    useGrouping: options.useGrouping,
-  }).format(value);
-
-  return `${options.prefix}${formatted}${options.suffix}`;
+  return `${options.prefix}${options.numberFormat.format(value)}${options.suffix}`;
 }
 
 function isElement(target) {
   return typeof Element !== "undefined" && target instanceof Element;
 }
 
-function readElementValue(element) {
-  const text = (element.textContent || "").trim();
-  // Strip everything except digits, dot, comma and minus sign
-  const cleaned = text.replace(/[^\d.,-]/g, "");
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function stripToNumericTokens(text, groupSeparator) {
+  const groupRe = new RegExp(escapeRegExp(groupSeparator), "g");
+  return text.trim().replace(/[^\d.,-]/g, "").replace(groupRe, "");
+}
+
+function readElementValue(element, locale) {
+  const { decimal, group } = getLocaleSeparators(locale);
+  const cleaned = stripToNumericTokens(element.textContent || "", group);
   if (!cleaned) return null;
-  // Remove commas (treat as thousands separator) and parse
-  const n = parseFloat(cleaned.replace(/,/g, ""));
+
+  const n = parseFloat(cleaned.replace(decimal, "."));
   return Number.isFinite(n) ? n : null;
 }
 
-function readElementDecimals(element) {
-  const text = (element.textContent || "").trim();
-  const cleaned = text.replace(/[^\d.,-]/g, "").replace(/,/g, "");
-  const dot = cleaned.indexOf(".");
-  return dot === -1 ? 0 : cleaned.length - dot - 1;
+function readElementDecimals(element, locale) {
+  const { decimal, group } = getLocaleSeparators(locale);
+  const cleaned = stripToNumericTokens(element.textContent || "", group);
+  const idx = cleaned.indexOf(decimal);
+  return idx === -1 ? 0 : cleaned.length - idx - 1;
 }
 
 function resolveElements(target) {
@@ -132,16 +177,15 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
     throw new Error("counterUp: target element not found.");
   }
 
-  // When end is not provided and there is a DOM element, read its current text as the target value.
-  // When decimals is also not provided, infer it from the element's text.
+  const inferLocale = userOptions.locale ?? defaultOptions.locale;
   const autoEnd =
     element !== null && userOptions.end === undefined
-      ? readElementValue(element)
+      ? readElementValue(element, inferLocale)
       : null;
 
   const autoDecimals =
     autoEnd !== null && userOptions.decimals === undefined
-      ? readElementDecimals(element)
+      ? readElementDecimals(element, inferLocale)
       : null;
 
   let options = normalizeOptions({
@@ -321,6 +365,7 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
 
   function update(nextEnd, nextOptions = {}) {
     if (state.destroyed) return api;
+    stop();
     disconnectObserver();
     options = normalizeOptions({
       ...options,
@@ -331,6 +376,13 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
         nextOptions.start === undefined ? state.value : toNumber(nextOptions.start),
       end: toNumber(nextEnd, options.end),
     });
+
+    if (options.startOnView && element !== null) {
+      state.hasPlayed = false;
+      setupObserver();
+      return api;
+    }
+
     return play(options.start, options.end);
   }
 
@@ -416,56 +468,40 @@ function createCounterInstance(element, userOptions = {}, index = 0) {
   return api;
 }
 
+function pickValueForIndex(values, index, fallback = 0) {
+  return values[index] ?? values[values.length - 1] ?? fallback;
+}
+
 function createGroupInstance(elements, userOptions) {
   const instances = elements.map((element, index) =>
-    createCounterInstance(element, userOptions, index)
+    createCounterInstance(element, userOptions, index),
   );
 
-  const api = {
-    start() {
-      instances.forEach((instance) => instance.start());
-      return api;
-    },
-    stop() {
-      instances.forEach((instance) => instance.stop());
-      return api;
-    },
-    pause() {
-      instances.forEach((instance) => instance.pause());
-      return api;
-    },
-    resume() {
-      instances.forEach((instance) => instance.resume());
-      return api;
-    },
-    reset() {
-      instances.forEach((instance) => instance.reset());
-      return api;
-    },
-    set(value) {
-      if (Array.isArray(value)) {
-        instances.forEach((instance, index) => {
-          instance.set(value[index] ?? value[value.length - 1] ?? 0);
-        });
-        return api;
-      }
+  const broadcast = (method) => {
+    instances.forEach((instance) => instance[method]());
+    return api;
+  };
 
-      instances.forEach((instance) => instance.set(value));
+  const api = {
+    start: () => broadcast("start"),
+    stop: () => broadcast("stop"),
+    pause: () => broadcast("pause"),
+    resume: () => broadcast("resume"),
+    reset: () => broadcast("reset"),
+    destroy: () => broadcast("destroy"),
+    set(value) {
+      const perIndex = Array.isArray(value);
+      instances.forEach((instance, index) => {
+        instance.set(perIndex ? pickValueForIndex(value, index) : value);
+      });
       return api;
     },
     update(nextEnd, nextOptions = {}) {
-      if (Array.isArray(nextEnd)) {
-        instances.forEach((instance, index) => {
-          instance.update(nextEnd[index] ?? nextEnd[nextEnd.length - 1] ?? 0, nextOptions);
-        });
-        return api;
-      }
-
-      instances.forEach((instance) => instance.update(nextEnd, nextOptions));
-      return api;
-    },
-    destroy() {
-      instances.forEach((instance) => instance.destroy());
+      const perIndex = Array.isArray(nextEnd);
+      instances.forEach((instance, index) => {
+        const target = perIndex ? pickValueForIndex(nextEnd, index) : nextEnd;
+        instance.update(target, nextOptions);
+      });
       return api;
     },
     get values() {

@@ -9,8 +9,9 @@
   <a href="./CONTRIBUTING.md"><img alt="contributions welcome" src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg"></a>
   <a href="https://github.com/NullSablex/counter-up/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/NullSablex/counter-up/ci.yml?branch=main&label=CI"></a>
   <a href="https://github.com/NullSablex/counter-up/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://img.shields.io/github/actions/workflow/status/NullSablex/counter-up/codeql.yml?branch=main&label=CodeQL"></a>
-  <a href="https://badge.socket.dev/npm/package/@nullsablex/counter-up/0.2.0"><img alt="Socket Badge" src="https://badge.socket.dev/npm/package/@nullsablex/counter-up/0.2.0"></a>
-  <a href="https://nullsablex.github.io/counter-up/demo/"><img alt="demo" src="https://img.shields.io/badge/demo-live-orange"></a>
+  <a href="https://badge.socket.dev/npm/package/@nullsablex/counter-up/1.0.0"><img alt="Socket Badge" src="https://badge.socket.dev/npm/package/@nullsablex/counter-up/1.0.0"></a>
+  <a href="https://counter-up.nullsablex.com"><img alt="demo" src="https://img.shields.io/badge/demo-live-orange"></a>
+  <a href="https://bundlephobia.com/package/@nullsablex/counter-up"><img alt="bundle size" src="https://img.shields.io/bundlephobia/minzip/%40nullsablex%2Fcounter-up?label=min%2Bgzip&color=brightgreen"></a>
   <a href="https://github.com/NullSablex/counter-up/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/NullSablex/counter-up?style=social"></a>
 </p>
 
@@ -22,7 +23,8 @@ Biblioteca JavaScript pura para animação de contadores numéricos — funciona
 - Funciona com DOM **e** em modo headless (Node.js, SSR, Vitest sem jsdom)
 - Suporte a seletor CSS, elemento DOM, `NodeList` e array de elementos
 - Formatação via `Intl.NumberFormat` com suporte a locale, prefixo e sufixo
-- Easing embutido (`linear`, `easeInOutQuad`, `easeOutCubic`) ou função personalizada
+- Easing embutido (`linear`, `easeInQuad`, `easeOutQuad`, `easeInOutQuad`, `easeInCubic`, `easeOutCubic`, `easeInOutCubic`, `easeOutQuart`, `easeOutExpo`) ou função personalizada
+- Acessibilidade: respeita `prefers-reduced-motion` por padrão
 - Inicialização automática ao entrar na viewport (`startOnView`)
 - Controles completos: `start`, `pause`, `resume`, `stop`, `reset`, `set`, `update`, `destroy`
 - Tipos TypeScript nativos incluídos — sem `@types/*` externo
@@ -34,12 +36,11 @@ Biblioteca JavaScript pura para animação de contadores numéricos — funciona
 npm install @nullsablex/counter-up
 ```
 
-O pacote já inclui os arquivos prontos de `dist/`. Não é necessário rodar build para usar.
+O pacote já inclui os arquivos prontos de [`dist/`](dist/). Não é necessário rodar build para usar.
 
 ## Demo
 
-Acesse a demonstração online no GitHub Pages:
-`https://nullsablex.github.io/counter-up/demo/`
+Acesse a demonstração online: **<https://counter-up.nullsablex.com>**
 
 ---
 
@@ -160,13 +161,14 @@ const counter = counterUp(null, {
 
 | Opção | Tipo | Padrão | Descrição |
 |---|---|---|---|
-| `easing` | `string \| function` | `"easeOutCubic"` | Curva de aceleração da animação. Strings aceitas: `"linear"`, `"easeInOutQuad"`, `"easeOutCubic"`. Também aceita uma função `(t: number) => number` onde `t` vai de `0` a `1`. |
+| `easing` | `string \| function` | `"easeOutCubic"` | Curva de aceleração da animação. Strings aceitas: `"linear"`, `"easeInQuad"`, `"easeOutQuad"`, `"easeInOutQuad"`, `"easeInCubic"`, `"easeOutCubic"`, `"easeInOutCubic"`, `"easeOutQuart"`, `"easeOutExpo"`. Também aceita uma função `(t: number) => number` onde `t` vai de `0` a `1`. |
 
 #### Comportamento
 
 | Opção | Tipo | Padrão | Descrição |
 |---|---|---|---|
 | `sleep` | `number` | `0` | Tempo de espera em milissegundos antes de a animação começar. `0` inicia imediatamente. Útil para escalonar múltiplos contadores ou aguardar após um elemento entrar na viewport. O sleep é cancelado se `.stop()`, `.pause()` ou `.destroy()` for chamado antes de ele disparar. |
+| `respectReducedMotion` | `boolean` | `true` | Quando `true`, respeita `prefers-reduced-motion: reduce` do sistema e força `duration: 0` (transição instantânea). Veja a seção [Acessibilidade](#acessibilidade--prefers-reduced-motion). |
 | `autostart` | `boolean` | `true` | Inicia a animação automaticamente ao criar a instância. Se `false`, a animação fica aguardando uma chamada manual a `.start()`. |
 | `startOnView` | `boolean` | `false` | Usa `IntersectionObserver` para iniciar a animação somente quando o elemento entra na viewport. Ignorado em modo headless (sem DOM). |
 | `once` | `boolean` | `true` | Usado com `startOnView`: se `true`, a animação dispara apenas na primeira vez que o elemento aparecer. Se `false`, reinicia toda vez que o elemento entrar na viewport. |
@@ -266,9 +268,24 @@ counter.destroy();
 
 ---
 
+## Acessibilidade — `prefers-reduced-motion`
+
+Por padrão a biblioteca respeita a preferência do sistema do usuário. Quando `prefers-reduced-motion: reduce` está ativo, a duração é forçada a `0` e o contador vai direto ao valor final — sem animação.
+
+A leitura da preferência acontece **no momento da criação** da instância (e em cada chamada de `update()`). Mudanças posteriores na configuração do sistema operacional **não** afetam contadores já em execução; se sua aplicação precisa reagir a essa mudança em tempo real, escute o `MediaQueryList` e chame `instance.update(end)` manualmente:
+
+```js
+const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+mql.addEventListener("change", () => counter.update(counter.value));
+```
+
+Para desabilitar o comportamento (animar sempre, mesmo com a preferência ativa), passe `respectReducedMotion: false`.
+
+---
+
 ## TypeScript
 
-O pacote inclui declarações nativas em `src/counterup.d.ts`. Nenhuma instalação extra é necessária.
+O pacote inclui declarações nativas em [`dist/counterup.d.ts`](src/counterup.d.ts). Nenhuma instalação extra é necessária.
 
 ```ts
 import { counterUp } from "@nullsablex/counter-up";
@@ -325,44 +342,59 @@ counterUp(".metric", opts);
 npm run build
 ```
 
-Arquivos gerados em `dist/`:
+Arquivos gerados em [`dist/`](dist/) (a partir de [`src/counterup.js`](src/counterup.js) via [`scripts/build.mjs`](scripts/build.mjs)):
 
-- `counterup.esm.js` — ESM sem minificação
-- `counterup.esm.min.js` — ESM minificado
-- `counterup.umd.js` — UMD sem minificação
-- `counterup.umd.min.js` — UMD minificado (indicado para uso via `<script>`)
+- [`counterup.esm.js`](dist/counterup.esm.js) — ESM sem minificação
+- [`counterup.esm.min.js`](dist/counterup.esm.min.js) — ESM minificado
+- [`counterup.umd.js`](dist/counterup.umd.js) — UMD sem minificação
+- [`counterup.umd.min.js`](dist/counterup.umd.min.js) — UMD minificado (indicado para uso via `<script>`)
+- [`counterup.d.ts`](dist/counterup.d.ts) — declarações TypeScript
+
+---
+
+## Testes
+
+```bash
+npm test           # roda toda a suíte uma vez
+npm run test:watch # modo watch durante desenvolvimento
+```
+
+A suíte ([`tests/counterup.test.js`](tests/counterup.test.js)) usa [Vitest](https://vitest.dev/) + jsdom e cobre DOM, modo headless, pause/resume/destroy/reset, auto-detecção locale-aware, `prefers-reduced-motion`, `startOnView` + `update()` e a API de grupo.
 
 ---
 
 ## CI/CD
 
-Workflows configurados em `.github/workflows/`:
+Workflows configurados em [`.github/workflows/`](.github/workflows/):
 
-- `ci.yml` — validação em push/PR (`npm ci`, `npm run build`, `npm pack --dry-run`)
-- `dependency-review.yml` — revisão de dependências em PR
-- `codeql.yml` — análise estática de segurança (CodeQL)
-- `release.yml` — publicação automática no npm via tag `v*.*.*`
-- `welcome.yml` — mensagem automática de boas-vindas para primeira issue/PR
+- [`ci.yml`](.github/workflows/ci.yml) — em push/PR: `npm ci`, `npm test`, `npm run build`, `npm pack --dry-run`
+- [`codeql.yml`](.github/workflows/codeql.yml) — análise estática de segurança (CodeQL)
+- [`dependency-review.yml`](.github/workflows/dependency-review.yml) — revisão de dependências em PR
+- [`labels.yml`](.github/workflows/labels.yml) — sincroniza as labels do repositório a partir de [`.github/labels.yml`](.github/labels.yml)
+- [`pages.yml`](.github/workflows/pages.yml) — publica a demo em <https://counter-up.nullsablex.com> via GitHub Pages (deploy por Actions)
+- [`release-drafter.yml`](.github/workflows/release-drafter.yml) — mantém um rascunho de release atualizado a cada PR mergeado (config em [`.github/release-drafter.yml`](.github/release-drafter.yml))
+- [`release.yml`](.github/workflows/release.yml) — em tag `v*.*.*`: publica no npm (com provenance) e cria a GitHub Release usando o trecho do [`CHANGELOG.md`](CHANGELOG.md) como corpo
+- [`welcome.yml`](.github/workflows/welcome.yml) — mensagem automática de boas-vindas para primeira issue/PR
 
 ---
 
 ## Projeto
 
-- Autor: `NullSablex`
-- Repositório: `https://github.com/NullSablex/counter-up`
+- Autor: [`NullSablex`](https://github.com/NullSablex)
+- Repositório: <https://github.com/NullSablex/counter-up>
 
 ## Licença
 
-MIT. Consulte `LICENSE`.
+MIT. Consulte [`LICENSE`](LICENSE).
 
 ## Contribuição
 
-Veja `CONTRIBUTING.md`.
+Veja [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Código de Conduta
 
-Veja `CODE_OF_CONDUCT.md`.
+Veja [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 
 ## Histórico de versões
 
-Veja `CHANGELOG.md`.
+Veja [`CHANGELOG.md`](CHANGELOG.md).

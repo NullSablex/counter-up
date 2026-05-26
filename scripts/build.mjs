@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = process.cwd();
 const srcPath = resolve(root, "src/counterup.js");
+const dtsPath = resolve(root, "src/counterup.d.ts");
 const distDir = resolve(root, "dist");
 const pkgPath = resolve(root, "package.json");
 
@@ -152,6 +153,9 @@ async function build() {
   await writeFile(resolve(distDir, "counterup.esm.min.js"), `${banner}${esmMin}`);
   await writeFile(resolve(distDir, "counterup.umd.js"), `${banner}${umdSource}`);
   await writeFile(resolve(distDir, "counterup.umd.min.js"), `${banner}${umdMin}`);
+
+  const dtsSource = await readFile(dtsPath, "utf8");
+  await writeFile(resolve(distDir, "counterup.d.ts"), dtsSource);
 }
 
 build().catch((error) => {

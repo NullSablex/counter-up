@@ -188,6 +188,12 @@
         justify-content: center;
       }
       .demo-item { text-align: center; }
+      .demo-grid-9 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 28%, 180px), 1fr));
+        gap: clamp(14px, 2.2vw, 22px);
+      }
+      .num.small { font-size: clamp(1.4rem, 3.2vw, 1.9rem); }
 
       /* ── BUTTONS ────────────────────────────────────── */
       .controls {
@@ -297,6 +303,8 @@
       <a href="#formatacao">Formatação</a>
       <a href="#locale">Locale</a>
       <a href="#easing">Easing</a>
+      <a href="#duration">Duração</a>
+      <a href="#a11y">Acessibilidade</a>
       <a href="#formatter">Formatter</a>
       <a href="#stagger">Sleep / Stagger</a>
       <a href="#viewport">Viewport</a>
@@ -569,46 +577,41 @@ counterUp("#l-frfr", { ...opts, locale: "fr-FR" });</pre></div>
       <!-- ════════════════════════ EASING ══════════════════════ -->
       <section id="easing">
         <h2>Easing <span class="tag">curva de animação</span></h2>
-        <p class="desc">Três curvas embutidas: <code>"linear"</code>, <code>"easeInOutQuad"</code>, <code>"easeOutCubic"</code>. Também aceita qualquer função <code>(t: number) =&gt; number</code>.</p>
+        <p class="desc">Nove curvas embutidas: <code>"linear"</code>, <code>"easeInQuad"</code>, <code>"easeOutQuad"</code>, <code>"easeInOutQuad"</code>, <code>"easeInCubic"</code>, <code>"easeOutCubic"</code> (padrão), <code>"easeInOutCubic"</code>, <code>"easeOutQuart"</code>, <code>"easeOutExpo"</code>. Também aceita qualquer função <code>(t: number) =&gt; number</code>.</p>
 
         <div class="example">
-          <div class="example-title">Comparação dos três easings embutidos</div>
+          <div class="example-title">Comparativo dos 9 easings embutidos</div>
           <div class="example-body">
             <div class="example-demo">
-              <div class="demo-row">
-                <div class="demo-item">
-                  <div class="label">linear</div>
-                  <div class="num" id="e-linear">0</div>
-                </div>
-                <div class="demo-item">
-                  <div class="label">easeInOutQuad</div>
-                  <div class="num" id="e-inout">0</div>
-                </div>
-                <div class="demo-item">
-                  <div class="label">easeOutCubic</div>
-                  <div class="num" id="e-outcubic">0</div>
-                </div>
+              <div class="demo-row demo-grid-9">
+                <div class="demo-item"><div class="label">linear</div><div class="num small" id="e-linear">0</div></div>
+                <div class="demo-item"><div class="label">easeInQuad</div><div class="num small" id="e-inquad">0</div></div>
+                <div class="demo-item"><div class="label">easeOutQuad</div><div class="num small" id="e-outquad">0</div></div>
+                <div class="demo-item"><div class="label">easeInOutQuad</div><div class="num small" id="e-inoutquad">0</div></div>
+                <div class="demo-item"><div class="label">easeInCubic</div><div class="num small" id="e-incubic">0</div></div>
+                <div class="demo-item"><div class="label">easeOutCubic ★</div><div class="num small" id="e-outcubic">0</div></div>
+                <div class="demo-item"><div class="label">easeInOutCubic</div><div class="num small" id="e-inoutcubic">0</div></div>
+                <div class="demo-item"><div class="label">easeOutQuart</div><div class="num small" id="e-outquart">0</div></div>
+                <div class="demo-item"><div class="label">easeOutExpo</div><div class="num small" id="e-outexpo">0</div></div>
               </div>
               <div class="controls">
                 <button class="btn-blue" id="e-replay">Replay</button>
               </div>
             </div>
-            <div class="example-code"><pre>counterUp("#e-linear", {
-  end: 1000,
-  easing: "linear",
-  duration: 2500,
-});
+            <div class="example-code"><pre>// Todos os easings disponíveis (default: "easeOutCubic")
+const names = [
+  "linear",
+  "easeInQuad", "easeOutQuad", "easeInOutQuad",
+  "easeInCubic", "easeOutCubic", "easeInOutCubic",
+  "easeOutQuart", "easeOutExpo",
+];
 
-counterUp("#e-inout", {
-  end: 1000,
-  easing: "easeInOutQuad",
-  duration: 2500,
-});
-
-counterUp("#e-outcubic", {
-  end: 1000,
-  easing: "easeOutCubic", // padrão
-  duration: 2500,
+names.forEach((name) =&gt; {
+  counterUp(`#e-${name}`, {
+    end: 1000,
+    easing: name,
+    duration: 2500,
+  });
 });</pre></div>
           </div>
         </div>
@@ -635,6 +638,98 @@ counterUp("#e-bounce", {
   end: 1000,
   easing: bounceOut, // função diretamente
   duration: 2200,
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════ DURATION ════════════════════ -->
+      <section id="duration">
+        <h2>Duração <span class="tag">comparativo</span></h2>
+        <p class="desc">A opção <code>duration</code> (em ms) controla o tempo total da animação. <code>0</code> pula direto ao valor final.</p>
+
+        <div class="example">
+          <div class="example-title">Mesma curva, durações diferentes</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item"><div class="label">500ms</div><div class="num small" id="d-500">0</div></div>
+                <div class="demo-item"><div class="label">1500ms</div><div class="num small" id="d-1500">0</div></div>
+                <div class="demo-item"><div class="label">3000ms</div><div class="num small" id="d-3000">0</div></div>
+                <div class="demo-item"><div class="label">5000ms</div><div class="num small" id="d-5000">0</div></div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="d-replay">Replay</button>
+              </div>
+            </div>
+            <div class="example-code"><pre>[500, 1500, 3000, 5000].forEach((ms) =&gt; {
+  counterUp(`#d-${ms}`, {
+    end: 1000,
+    duration: ms,
+    easing: "easeOutCubic",
+  });
+});</pre></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════════════════════ A11Y ════════════════════════ -->
+      <section id="a11y">
+        <h2>Acessibilidade <span class="tag">prefers-reduced-motion</span></h2>
+        <p class="desc">Por padrão a biblioteca respeita a preferência de movimento do sistema. Quando <code>prefers-reduced-motion: reduce</code> está ativo, a duração é forçada a <code>0</code> e o contador vai direto ao valor final — sem animação. Para desligar esse comportamento, passe <code>respectReducedMotion: false</code>.</p>
+
+        <div class="example">
+          <div class="example-title">Estado atual do seu sistema</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">Preferência detectada</div>
+                  <div class="num small" id="a-detect">—</div>
+                </div>
+              </div>
+              <p class="desc" style="margin-top:14px;text-align:center;">Mude em <em>Configurações do SO → Acessibilidade → Reduzir movimento</em> e recarregue para ver a diferença.</p>
+            </div>
+            <div class="example-code"><pre>const reduce = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
+// → true | false</pre></div>
+          </div>
+        </div>
+
+        <div class="example">
+          <div class="example-title">Toggle: respeita vs. ignora a preferência</div>
+          <div class="example-body">
+            <div class="example-demo">
+              <div class="demo-row">
+                <div class="demo-item">
+                  <div class="label">respectReducedMotion: true (padrão)</div>
+                  <div class="num" id="a-respect">0</div>
+                </div>
+                <div class="demo-item">
+                  <div class="label">respectReducedMotion: false</div>
+                  <div class="num" id="a-ignore">0</div>
+                </div>
+              </div>
+              <div class="controls">
+                <button class="btn-blue" id="a-replay">Replay</button>
+                <button class="btn-blue" id="a-simulate">Simular reduced-motion</button>
+              </div>
+              <p class="desc" style="margin-top:10px;text-align:center;" id="a-state">Modo: real (lê o sistema)</p>
+            </div>
+            <div class="example-code"><pre>// Respeita a preferência do usuário (padrão).
+// Com reduced-motion ativo, vai direto a 1000.
+counterUp("#a-respect", {
+  end: 1000,
+  duration: 2500,
+  respectReducedMotion: true,
+});
+
+// Ignora a preferência — sempre anima.
+counterUp("#a-ignore", {
+  end: 1000,
+  duration: 2500,
+  respectReducedMotion: false,
 });</pre></div>
           </div>
         </div>
@@ -1428,18 +1523,84 @@ counterUp(null, {
       counterUp("#l-dede", { ...lo, locale: "de-DE" });
       counterUp("#l-frfr", { ...lo, locale: "fr-FR" });
 
-      // ── EASING ────────────────────────────────────────────────────────────
-      let easeInst = null;
+      // ── EASING (9 curvas) ─────────────────────────────────────────────────
+      const easingMap = {
+        linear:         "e-linear",
+        easeInQuad:     "e-inquad",
+        easeOutQuad:    "e-outquad",
+        easeInOutQuad:  "e-inoutquad",
+        easeInCubic:    "e-incubic",
+        easeOutCubic:   "e-outcubic",
+        easeInOutCubic: "e-inoutcubic",
+        easeOutQuart:   "e-outquart",
+        easeOutExpo:    "e-outexpo",
+      };
+      let easeInst = [];
       function runEasing() {
-        if (easeInst) easeInst.forEach(i => i.destroy());
-        easeInst = [
-          counterUp("#e-linear",   { end: 1000, easing: "linear",        duration: 2500 }),
-          counterUp("#e-inout",    { end: 1000, easing: "easeInOutQuad",  duration: 2500 }),
-          counterUp("#e-outcubic", { end: 1000, easing: "easeOutCubic",   duration: 2500 }),
-        ];
+        easeInst.forEach(i => i.destroy());
+        easeInst = Object.entries(easingMap).map(([name, id]) =>
+          counterUp("#" + id, { end: 1000, easing: name, duration: 2500, respectReducedMotion: false })
+        );
       }
       runEasing();
       $("e-replay").onclick = runEasing;
+
+      // ── DURATION (comparativo) ────────────────────────────────────────────
+      const durations = [500, 1500, 3000, 5000];
+      let durInst = [];
+      function runDuration() {
+        durInst.forEach(i => i.destroy());
+        durInst = durations.map(ms =>
+          counterUp("#d-" + ms, { end: 1000, duration: ms, easing: "easeOutCubic", respectReducedMotion: false })
+        );
+      }
+      runDuration();
+      $("d-replay").onclick = runDuration;
+
+      // ── A11Y / prefers-reduced-motion ─────────────────────────────────────
+      const nativeMatchMedia = window.matchMedia.bind(window);
+      const reduceQuery = nativeMatchMedia("(prefers-reduced-motion: reduce)");
+      const detect = $("a-detect");
+      const stateLabel = $("a-state");
+      let simulate = false;
+
+      function systemPrefersReduce() {
+        return reduceQuery.matches;
+      }
+      function refreshDetect() {
+        detect.textContent = systemPrefersReduce() ? "reduce (ativo)" : "no-preference";
+      }
+      refreshDetect();
+      reduceQuery.addEventListener?.("change", refreshDetect);
+
+      let a11yInst = [];
+      function runA11y() {
+        a11yInst.forEach(i => i.destroy());
+        const effectiveReduce = simulate || systemPrefersReduce();
+        window.matchMedia = (q) => {
+          if (q.includes("reduce")) {
+            return { matches: effectiveReduce, media: q, addEventListener(){}, removeEventListener(){} };
+          }
+          return nativeMatchMedia(q);
+        };
+        try {
+          a11yInst = [
+            counterUp("#a-respect", { end: 1000, duration: 2500, respectReducedMotion: true }),
+            counterUp("#a-ignore",  { end: 1000, duration: 2500, respectReducedMotion: false }),
+          ];
+        } finally {
+          window.matchMedia = nativeMatchMedia;
+        }
+      }
+      runA11y();
+      $("a-replay").onclick = runA11y;
+      $("a-simulate").onclick = () => {
+        simulate = !simulate;
+        stateLabel.textContent = simulate
+          ? "Modo: simulado (forçando reduce)"
+          : "Modo: real (lê o sistema)";
+        runA11y();
+      };
 
       function bounceOut(t) {
         const n1 = 7.5625, d1 = 2.75;

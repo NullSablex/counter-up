@@ -4,6 +4,27 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 
 Este projeto segue o Versionamento Semântico.
 
+## [1.0.0] - 2026-05-25
+
+### Adicionado
+
+- Suporte a `prefers-reduced-motion`: a opção `respectReducedMotion` (padrão `true`) força `duration: 0` quando o usuário pediu redução de movimento no SO.
+- 6 novos easings embutidos: `easeInQuad`, `easeOutQuad`, `easeInCubic`, `easeInOutCubic`, `easeOutQuart`, `easeOutExpo`.
+- Suíte de testes com Vitest + jsdom (17 testes cobrindo DOM, headless, ciclo de vida, auto-detecção locale-aware, reduced-motion, startOnView+update, grupos).
+- Workflow `pages.yml`: deploy automático da demo via GitHub Actions para <https://counter-up.nullsablex.com>.
+- Script `prepublishOnly` roda build + testes antes de publicar; declarações TypeScript agora são publicadas em `dist/counterup.d.ts`.
+
+### Alterado
+
+- Auto-detecção do valor inicial do elemento agora é **locale-aware**: lê corretamente formatos como `"1.234,56"` em pt-BR.
+- `Intl.NumberFormat` é cacheado em `normalizeOptions` (antes era recriado a cada frame).
+- `update()` reanexa o `IntersectionObserver` quando `startOnView` está ativo, em vez de tocar imediato — corrige cenário onde mudar o valor desligava o auto-start no scroll.
+- Workflows atualizados para `actions/checkout@v6`, `setup-node@v6`, `codeql-action@v4`, etc.
+
+### Corrigido
+
+- `update()` com `startOnView: true` agora mantém o comportamento de viewport (antes desligava o observer permanentemente).
+
 ## [0.2.0] - 2026-02-19
 
 ### Adicionado
