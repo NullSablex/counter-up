@@ -18,10 +18,10 @@ jobs:
       - name: First interaction welcome message
         uses: actions/first-interaction@v3
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
             Obrigado por abrir sua primeira issue no projeto.
             Sua contribuição é muito bem-vinda e vamos analisar em breve.
-          pr-message: |
+          pr_message: |
             Obrigado pelo seu primeiro Pull Request.
             É ótimo ter sua contribuição aqui no projeto.
