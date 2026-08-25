@@ -47,7 +47,7 @@
     "prepublishOnly": "npm run build && npm test"
   },
   "devDependencies": {
-    "jsdom": "^25.0.1",
+    "jsdom": "^30.0.1",
     "vitest": "^4.1.7"
   },
   "keywords": [
